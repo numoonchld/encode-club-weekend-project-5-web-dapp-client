@@ -21,6 +21,8 @@ export class AppComponent {
         this.isWalletLoggedIn = true
       }
     })
+
+    this.contractsService.loadContractOwner(ethereum)
   }
 
   // connect to metamask wallet on button click
