@@ -92,7 +92,7 @@ export class ContractsService {
     return metamaskWalletProvider.getSigner()
   }
 
-  async getLotteryContract(ethereum: any, signer?: ethers.Signer) {
+  async getLotteryContract(signer?: ethers.Signer) {
     let lotteryContract: ethers.Contract
 
     if (signer) {
@@ -115,9 +115,9 @@ export class ContractsService {
   // load contract owner
   async loadContractOwner(ethereum: any) {
     // const signer = await this.getMetamaskWalletSigner(ethereum)
-    const lotteryContract = await this.getLotteryContract(ethereum)
+    const lotteryContract = await this.getLotteryContract()
     const owner = await lotteryContract['owner']()
-    console.log('owner: ', await owner)
+    // console.log('owner: ', await owner)
     this.contractOwner = await owner
   }
 
@@ -130,4 +130,7 @@ export class ContractsService {
       this.currentAccount.toLowerCase().trim()
     )
   }
+
+  // betting window open?
+  async isBettingWindowOpen() {}
 }
