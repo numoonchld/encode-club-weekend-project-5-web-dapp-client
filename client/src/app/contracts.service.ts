@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core'
-import { ethers } from 'ethers'
+import { ethers, BigNumber } from 'ethers'
 import * as ContractAddressesJSON from '../assets/contracts/contracts.json'
 import * as LotteryContractJSON from '../assets/contracts/lottery-contract/Lottery.json'
 import * as LotteryTokenContractJSON from '../assets/contracts/lottery-token-contract/LotteryToken.json'
@@ -137,5 +137,38 @@ export class ContractsService {
     const isLotteryOpen = await lotteryContract['lotteryOpen']()
     console.log({ isLotteryOpen })
     return isLotteryOpen
+  }
+
+  // start lottery
+  async startLottery(
+    ethereum: any,
+    closingTime: Number,
+    BASE_WINNING_FEE_DEPLOY_FRIENDLY_FORMAT: BigNumber,
+  ) {
+    const currentWallet = await this.getMetamaskWalletSigner(ethereum)
+    console.log(await currentWallet.getAddress(), this.contractOwner)
+    if (
+      (await currentWallet.getAddress()).toLowerCase().trim() !==
+      this.contractOwner.toLowerCase().trim()
+    ) {
+      window.alert('Only owner allowed to start lottery!')
+      return
+    }
+
+    try {
+      const lotteryContract = await this.getLotteryContract()
+      const startLotteryTxn = await lotteryContract
+        .connect(currentWallet)
+        ['startLottery'](closingTime, BASE_WINNING_FEE_DEPLOY_FRIENDLY_FORMAT)
+
+      await startLotteryTxn.wait()
+      console.log(startLotteryTxn)
+
+      return startLotteryTxn
+    } catch (error) {
+      console.log(error)
+      window.alert(error)
+      return false
+    }
   }
 }

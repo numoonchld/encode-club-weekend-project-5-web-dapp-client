@@ -1,5 +1,8 @@
 import { Component, OnInit } from '@angular/core'
 import { ContractsService } from '../contracts.service'
+import { FormBuilder, Validators } from '@angular/forms'
+
+import { ethers } from 'ethers'
 
 declare var window: any
 
@@ -10,9 +13,19 @@ declare var window: any
 })
 export class AdminComponent implements OnInit {
   isOwnerLoggedIn: Boolean
+  isAttemptingLotteryStart: Boolean
 
-  constructor(private contractsService: ContractsService) {
+  startLotteryForm = this.fb.group({
+    closingTime: ['', [Validators.required]],
+    baseWinningWithdrawFee: ['', [Validators.required]],
+  })
+
+  constructor(
+    private contractsService: ContractsService,
+    private fb: FormBuilder,
+  ) {
     this.isOwnerLoggedIn = false
+    this.isAttemptingLotteryStart = false
   }
 
   async ngOnInit(): Promise<void> {
@@ -31,5 +44,25 @@ export class AdminComponent implements OnInit {
       console.log('account change state', this.isOwnerLoggedIn)
     })
     */
+  }
+
+  async attemptLotteryStart() {
+    this.isAttemptingLotteryStart = true
+
+    const { ethereum } = window
+    const { closingTime, baseWinningWithdrawFee } = this.startLotteryForm.value
+
+    if (!closingTime || !baseWinningWithdrawFee) {
+      window.alert('Form not correctly filled - try again!')
+      this.isAttemptingLotteryStart = false
+      return
+    }
+    console.log({ closingTime, baseWinningWithdrawFee })
+
+    const txn = await this.contractsService.startLottery(
+      ethereum,
+      parseInt(closingTime!),
+      ethers.utils.parseEther(baseWinningWithdrawFee!),
+    )
   }
 }
