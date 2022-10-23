@@ -1,3 +1,48 @@
-<p>Hello World!</p>
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <!-- Container wrapper -->
+  <div class="container">
+    <!-- Navbar brand -->
+    <a class="navbar-brand me-2" href="/">
+      <span class="font-monospace"> Lottery dApp </span></a
+    >
+
+    <!-- Toggle button -->
+    <button
+      class="navbar-toggler"
+      type="button"
+      data-mdb-toggle="collapse"
+      data-mdb-target="#navbarButtonsExample"
+      aria-controls="navbarButtonsExample"
+      aria-expanded="false"
+      aria-label="Toggle navigation"
+    >
+      <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- Collapsible wrapper -->
+    <div
+      class="collapse navbar-collapse justify-content-end"
+      id="navbarButtonsExample"
+    >
+      <div class="d-flex flex-column flex-md-row gap-3 align-self-end">
+        <div class="btn-group" role="group" aria-label="Basic example">
+          <button type="button" class="btn btn-primary">
+            <i class="fas fa-dice fa-2x"></i>
+          </button>
+          <button type="button" class="btn btn-light">
+            <i class="fas fa-business-time fa-2x"></i>
+          </button>
+          <button type="button" class="btn btn-success">
+            <i class="fas fa-wallet fa-2x"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+    <!-- Collapsible wrapper -->
+  </div>
+  <!-- Container wrapper -->
+</nav>
+<!-- Navbar -->
 
 <router-outlet></router-outlet>
