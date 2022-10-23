@@ -27,11 +27,17 @@
     >
       <div class="d-flex flex-column flex-md-row gap-3 align-self-end">
         <div class="btn-group" role="group" aria-label="Basic example">
-          <button type="button" class="btn btn-primary">
-            <i class="fas fa-dice fa-2x"></i>
+          <button
+            type="button"
+            class="btn btn-primary"
+            [routerLink]="['/wager']"
+          >
+            <!-- <i class="fas fa-dice fa-2x"></i> -->
+            <i class="fas fa-dice"></i>
           </button>
-          <button type="button" class="btn btn-light">
-            <i class="fas fa-business-time fa-2x"></i>
+          <button type="button" class="btn btn-light" [routerLink]="['/admin']">
+            <!-- <i class="fas fa-business-time fa-2x"></i> -->
+            <i class="fas fa-business-time"></i>
           </button>
           <button
             type="button"
@@ -39,7 +45,8 @@
             (click)="connectMetamaskWallet()"
             *ngIf="!isWalletLoggedIn"
           >
-            <i class="fas fa-wallet fa-2x"></i>
+            <!-- <i class="fas fa-wallet fa-2x"></i> -->
+            <i class="fas fa-wallet"></i>
           </button>
         </div>
       </div>

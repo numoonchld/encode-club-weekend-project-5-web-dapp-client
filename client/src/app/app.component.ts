@@ -14,6 +14,13 @@ export class AppComponent {
 
   constructor(private contractsService: ContractsService) {
     this.isWalletLoggedIn = false
+
+    const { ethereum } = window
+    this.contractsService.checkWalletConnection(ethereum).then((data0) => {
+      if (data0) {
+        this.isWalletLoggedIn = true
+      }
+    })
   }
 
   // connect to metamask wallet on button click
@@ -22,6 +29,7 @@ export class AppComponent {
 
     if (!this.isWalletLoggedIn) {
       const { ethereum } = window
+      await this.contractsService.checkWalletConnection(ethereum)
       await this.contractsService.connectToWallet(ethereum)
       this.isWalletLoggedIn = this.contractsService.isLoggedIn
       window.alert('Connected to Wallet!')
