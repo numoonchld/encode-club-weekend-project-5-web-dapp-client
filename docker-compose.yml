@@ -1,0 +1,9 @@
+services:
+  nginx_env:
+    build: ./client
+    container_name: nginx-docker
+    ports:
+      - 80:80
+    volumes:
+      - ./client/dist/client:/usr/share/nginx/html
+
