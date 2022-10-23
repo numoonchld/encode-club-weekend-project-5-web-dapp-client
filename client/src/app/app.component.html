@@ -1,31 +1,26 @@
-<!-- Navbar -->
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-  <!-- Container wrapper -->
-  <div class="container">
-    <!-- Navbar brand -->
-    <a class="navbar-brand me-2" href="/">
-      <span class="font-monospace"> Lottery dApp </span>
+  <div class="container d-flex flex-row justify-content-between">
+    <a class="navbar-brand" href="/">
+      <span class="font-monospace">
+        <i class="fa-solid fa-dollar-sign"></i> Lottery dApp
+      </span>
     </a>
-
-    <!-- Toggle button -->
     <button
       class="navbar-toggler"
       type="button"
-      data-mdb-toggle="collapse"
-      data-mdb-target="#navbarButtonsExample"
-      aria-controls="navbarButtonsExample"
+      data-bs-toggle="collapse"
+      data-bs-target="#navbarToggler"
+      aria-controls="navbarToggler"
       aria-expanded="false"
       aria-label="Toggle navigation"
     >
-      <i class="fas fa-bars"></i>
+      <span class="navbar-toggler-icon"></span>
     </button>
-
-    <!-- Collapsible wrapper -->
     <div
-      class="collapse navbar-collapse justify-content-end"
-      id="navbarButtonsExample"
+      class="collapse navbar-collapse mt-3 mt-md-0 justify-content-end"
+      id="navbarToggler"
     >
-      <div class="d-flex flex-column flex-md-row gap-3 align-self-end">
+      <div class="d-flex flex-column flex-md-row gap-3">
         <div class="btn-group" role="group" aria-label="Basic example">
           <button
             type="button"
@@ -51,10 +46,7 @@
         </div>
       </div>
     </div>
-    <!-- Collapsible wrapper -->
   </div>
-  <!-- Container wrapper -->
 </nav>
-<!-- Navbar -->
 
 <router-outlet></router-outlet>
