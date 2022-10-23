@@ -1,1 +1,24 @@
-<p>landing works!</p>
+<section class="container py-5">
+  <!-- <div class="">
+    <h1>Lottery</h1>
+    <hr />
+  </div> -->
+
+  <div class="my-3 d-flex flex-column gap-3">
+    <div class="alert alert-info" role="alert">
+      Lottery contract currently deployed at {{ lotteryContractAddress }}.
+    </div>
+
+    <div
+      class="alert"
+      [ngClass]="isBettingWindowOpen ? 'alert-success' : 'alert-danger'"
+      role="alert"
+    >
+      {{
+        isBettingWindowOpen
+          ? "Betting is open!"
+          : "Lottery is currently not open for betting!"
+      }}
+    </div>
+  </div>
+</section>

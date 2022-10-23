@@ -132,5 +132,10 @@ export class ContractsService {
   }
 
   // betting window open?
-  async isBettingWindowOpen() {}
+  async isBettingWindowOpen() {
+    const lotteryContract = await this.getLotteryContract()
+    const isLotteryOpen = await lotteryContract['lotteryOpen']()
+    console.log({ isLotteryOpen })
+    return isLotteryOpen
+  }
 }
