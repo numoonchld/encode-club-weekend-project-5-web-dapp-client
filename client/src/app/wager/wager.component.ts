@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core'
 import { ContractsService } from '../contracts.service'
 import { FormBuilder, Validators } from '@angular/forms'
+import { ethers } from 'ethers'
 
 declare var window: any
 
@@ -11,10 +12,15 @@ declare var window: any
 })
 export class WagerComponent implements OnInit {
   isAttemptingToPurchaseTokens: Boolean
+  isLoadingBalance: Boolean
   isBettingWindowOpen: Boolean
   getLotteryTokenBalanceForCurrentWallet: string
 
   buyTokensForm = this.fb.group({
+    lotteryTokenAmount: ['', [Validators.required]],
+  })
+
+  redeemTokensForm = this.fb.group({
     lotteryTokenAmount: ['', [Validators.required]],
   })
 
@@ -23,12 +29,24 @@ export class WagerComponent implements OnInit {
     private fb: FormBuilder,
   ) {
     this.isAttemptingToPurchaseTokens = false
+    this.isLoadingBalance = true
     this.isBettingWindowOpen = false
     this.getLotteryTokenBalanceForCurrentWallet = ''
   }
 
   async ngOnInit(): Promise<void> {
     this.isBettingWindowOpen = await this.contractsService.isBettingWindowOpen()
+
+    const { ethereum } = window
+    const lotteryTokenBalance = await this.contractsService.getLotteryTokenBalance(
+      ethereum,
+    )
+
+    this.getLotteryTokenBalanceForCurrentWallet = ethers.utils.formatEther(
+      lotteryTokenBalance!.toString(),
+    )
+
+    this.isLoadingBalance = false
   }
 
   async attemptTokenPurchase() {
@@ -36,7 +54,6 @@ export class WagerComponent implements OnInit {
     const { ethereum } = window
 
     const { lotteryTokenAmount } = this.buyTokensForm.value
-    // console.log({ lotteryTokenAmount })
 
     if (Number.isNaN(parseFloat(lotteryTokenAmount!))) {
       console.log('Enter valid token amount!')
@@ -54,8 +71,5 @@ export class WagerComponent implements OnInit {
     this.isAttemptingToPurchaseTokens = false
   }
 
-  async getLotteryTokenBalance() {
-    const { ethereum } = window
-    await this.contractsService.getLotteryTokenBalance(ethereum)
-  }
+  async attemptTokenRedemption() {}
 }

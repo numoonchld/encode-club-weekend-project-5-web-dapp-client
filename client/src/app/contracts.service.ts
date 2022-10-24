@@ -197,7 +197,7 @@ export class ContractsService {
   }
 
   // get lottery token balance
-  async getLotteryTokenBalance(ethereum: any) {
+  async getLotteryTokenBalance(ethereum: any): Promise<BigNumber | undefined> {
     try {
       const currentWallet = await this.getMetamaskWalletSigner(ethereum)
       const lotteryTokenContract = await this.getLotteryTokenContract()
@@ -210,7 +210,7 @@ export class ContractsService {
     } catch (error) {
       console.log('Can not get token balance: ', error)
       window.alert('Can not get token balance: ' + `${error}`)
-      return false
+      return
     }
   }
 
@@ -229,7 +229,6 @@ export class ContractsService {
         ['sellLotteryTokens']({
           value: ethers.utils.parseEther(lotteryTokenAmount),
         })
-      // console.log({ tokenPurchaseTxn })
 
       const tokenPurchaseTxnReceipt = await this.provider.getTransactionReceipt(
         tokenPurchaseTxn.hash,
@@ -237,11 +236,10 @@ export class ContractsService {
 
       if (tokenPurchaseTxnReceipt) {
         // run approve on token contract
-        // to delegate token spending to lottery contract on behalf of the signer
+        // to approve token spending to lottery contract on behalf of the signer
         const lotteryTokenContract = await this.getLotteryTokenContract()
 
         const currentTokenBalance = await this.getLotteryTokenBalance(ethereum)
-        // console.log({ currentTokenBalance })
 
         const approveAllowanceToLotteryContractTxn = await lotteryTokenContract
           .connect(currentWallet)
