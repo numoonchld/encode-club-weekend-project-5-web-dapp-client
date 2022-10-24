@@ -12,9 +12,11 @@ declare var window: any
 })
 export class WagerComponent implements OnInit {
   isAttemptingToPurchaseTokens: Boolean
+  isAttemptingTokenRedemption: Boolean
   isLoadingBalance: Boolean
   isBettingWindowOpen: Boolean
   currentLotteryTokenBalanceForCurrentWallet: string
+  currentWalletBalance: string
 
   buyTokensForm = this.fb.group({
     lotteryTokenAmount: ['', [Validators.required]],
@@ -29,9 +31,11 @@ export class WagerComponent implements OnInit {
     private fb: FormBuilder,
   ) {
     this.isAttemptingToPurchaseTokens = false
+    this.isAttemptingTokenRedemption = false
     this.isLoadingBalance = true
     this.isBettingWindowOpen = false
     this.currentLotteryTokenBalanceForCurrentWallet = ''
+    this.currentWalletBalance = ''
   }
 
   async ngOnInit(): Promise<void> {
@@ -44,6 +48,10 @@ export class WagerComponent implements OnInit {
 
     this.currentLotteryTokenBalanceForCurrentWallet = ethers.utils.formatEther(
       lotteryTokenBalance!.toString(),
+    )
+
+    this.currentWalletBalance = ethers.utils.formatEther(
+      (await this.contractsService.getWalletBalance(ethereum)).toString(),
     )
 
     this.isLoadingBalance = false
@@ -66,12 +74,24 @@ export class WagerComponent implements OnInit {
       lotteryTokenAmount!,
     )
 
-    if (isPurchaseSuccess) await this.ngOnInit()
-    else window.alert('Token purchase unsuccessful - please try later!')
+    if (isPurchaseSuccess) {
+      window.alert('Token purchase successful!')
+      await this.ngOnInit()
+    } else window.alert('Token purchase unsuccessful - please try later!')
     this.isAttemptingToPurchaseTokens = false
   }
 
   async attemptTokenRedemption() {
-    const currentTokenBalance = this.currentLotteryTokenBalanceForCurrentWallet
+    this.isAttemptingTokenRedemption = true
+    const { ethereum } = window
+
+    const ifRedemptionSuccess = await this.contractsService.redeemTokensToETH(
+      ethereum,
+    )
+    if (ifRedemptionSuccess) {
+      window.alert('Redemption was successful!')
+      await this.ngOnInit()
+    }
+    this.isAttemptingTokenRedemption = false
   }
 }

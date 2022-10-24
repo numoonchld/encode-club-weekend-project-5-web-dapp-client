@@ -93,6 +93,12 @@ export class ContractsService {
     return metamaskWalletProvider.getSigner()
   }
 
+  // get wallet balance
+  async getWalletBalance(ethereum: any) {
+    const metamaskWalletProvider = new ethers.providers.Web3Provider(ethereum)
+    return metamaskWalletProvider.getSigner().getBalance()
+  }
+
   // instantiate lottery contract
   async getLotteryContract(signer?: ethers.Signer) {
     let lotteryContract: ethers.Contract
@@ -259,5 +265,32 @@ export class ContractsService {
       window.alert(error)
       return false
     }
+  }
+
+  // token redemption
+  async redeemTokensToETH(ethereum: any): Promise<Boolean> {
+    try {
+      const currentWallet = await this.getMetamaskWalletSigner(ethereum)
+      const currentTokenBalance = await this.getLotteryTokenBalance(ethereum)
+
+      const lotteryTokenContract = await this.getLotteryTokenContract()
+      const lotteryContract = await this.getLotteryContract()
+
+      const amountToBurn = currentTokenBalance
+      await lotteryContract
+        .connect(currentWallet)
+        ['trackLatestBurn'](amountToBurn)
+
+      await lotteryTokenContract.connect(currentWallet)['burn'](amountToBurn)
+
+      await lotteryContract.connect(currentWallet)['withdrawLastBurnToEther']()
+
+      return true
+    } catch (error) {
+      console.log(error)
+      window.alert(error)
+    }
+
+    return false
   }
 }
