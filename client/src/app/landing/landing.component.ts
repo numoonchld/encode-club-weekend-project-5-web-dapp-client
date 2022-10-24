@@ -13,18 +13,21 @@ export class LandingComponent implements OnInit {
   isBettingWindowOpen: Boolean
   isLotteryRollAvailable: Boolean
   isAttemptingLotteryRoll: Boolean
+  latestLotteryWinner: string
 
   constructor(private contractsService: ContractsService) {
     this.lotteryContractAddress = ''
     this.isBettingWindowOpen = false
     this.isLotteryRollAvailable = false
     this.isAttemptingLotteryRoll = false
+    this.latestLotteryWinner = ''
   }
 
   async ngOnInit(): Promise<void> {
     this.lotteryContractAddress = this.contractsService.lotteryContractAddress
     this.isBettingWindowOpen = await this.contractsService.isBettingWindowOpen()
     this.isLotteryRollAvailable = await this.contractsService.isLotteryRollAvailable()
+    this.latestLotteryWinner = await this.contractsService.getLatestLotteryWinner()
   }
 
   async rollLottery() {

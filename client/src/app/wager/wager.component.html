@@ -1,17 +1,26 @@
 <section class="container py-5">
   <div class="d-flex flex-column gap-5">
-    <div
-      class="alert"
-      [ngClass]="isBettingWindowOpen ? 'alert-success' : 'alert-danger'"
-      role="alert"
-    >
-      {{
-        isBettingWindowOpen
-          ? "Betting is open!"
-          : "Lottery is currently not open for betting!"
-      }}
-    </div>
+    <div class="d-flex flex-column gap-2">
+      <div
+        class="alert"
+        [ngClass]="isBettingWindowOpen ? 'alert-success' : 'alert-danger'"
+        role="alert"
+      >
+        {{
+          isBettingWindowOpen
+            ? "Betting is open!"
+            : "Lottery is currently not open for betting!"
+        }}
+      </div>
 
+      <div
+        class="alert alert-success"
+        role="alert"
+        *ngIf="unclaimedLotteryWinning !== ''"
+      >
+        You have unclaimed winnings of {{ unclaimedLotteryWinning }}!
+      </div>
+    </div>
     <article class="card text-dark bg-light mb-3">
       <h3 class="card-header d-flex flex-column">Your lottery token balance</h3>
       <div
@@ -52,14 +61,14 @@
             >
             <input
               type="text"
-              class="form-control"
+              class="form-control input-lg"
               placeholder="amount of tokens to buy"
               id="amount-of-tokens-to-buy"
               formControlName="lotteryTokenAmount"
             />
           </div>
 
-          <button type="submit" class="btn btn-outline-success w-100 py-3">
+          <button type="submit" class="btn btn-outline-success w-100 py-1">
             <span *ngIf="isAttemptingToPurchaseTokens === false">Buy</span>
             <div
               *ngIf="isAttemptingToPurchaseTokens === true"
@@ -72,7 +81,7 @@
         </form>
 
         <button
-          class="btn btn-outline-dark py-3 w-100"
+          class="btn btn-outline-dark w-100 py-1"
           (click)="attemptTokenRedemption()"
           *ngIf="isLoadingBalance === false"
         >

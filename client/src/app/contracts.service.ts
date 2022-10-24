@@ -97,7 +97,9 @@ export class ContractsService {
   // get wallet balance
   async getWalletBalance(ethereum: any) {
     const metamaskWalletProvider = new ethers.providers.Web3Provider(ethereum)
-    return metamaskWalletProvider.getSigner().getBalance()
+    return bigNumberToETHString(
+      await metamaskWalletProvider.getSigner().getBalance(),
+    )
   }
 
   // instantiate lottery contract
@@ -211,7 +213,7 @@ export class ContractsService {
   }
 
   // get lottery token balance
-  async getLotteryTokenBalance(ethereum: any): Promise<BigNumber | undefined> {
+  async getLotteryTokenBalance(ethereum: any) {
     try {
       const currentWallet = await this.getMetamaskWalletSigner(ethereum)
       const lotteryTokenContract = await this.getLotteryTokenContract()
@@ -220,11 +222,11 @@ export class ContractsService {
         'balanceOf'
       ](await currentWallet.getAddress())
 
-      return currentAccountTokenBalance
+      return bigNumberToETHString(currentAccountTokenBalance)
     } catch (error) {
       console.log('Can not get token balance: ', error)
       window.alert('Can not get token balance: ' + `${error}`)
-      return
+      return ''
     }
   }
 
@@ -375,6 +377,36 @@ export class ContractsService {
       console.log(error)
       window.alert(error)
       return false
+    }
+  }
+
+  // latest lottery winner
+  async getLatestLotteryWinner() {
+    try {
+      const lotteryContract = await this.getLotteryContract()
+      const latestLotteryWinner = await lotteryContract['latestLotteryWinner']()
+      return latestLotteryWinner
+    } catch (error) {
+      console.log(error)
+      window.alert(error)
+      return false
+    }
+  }
+
+  // get unclaimed winnings for wallet
+  async getUnclaimedWinnings(ethereum: any) {
+    try {
+      const lotteryContract = await this.getLotteryContract()
+      const currentWallet = await this.getMetamaskWalletSigner(ethereum)
+      const unclaimedWinnings = await lotteryContract['winningStash'](
+        await currentWallet.getAddress(),
+      )
+
+      return bigNumberToETHString(unclaimedWinnings)
+    } catch (error) {
+      console.log(error)
+      window.alert(error)
+      return ''
     }
   }
 }

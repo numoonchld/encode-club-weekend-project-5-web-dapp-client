@@ -10,6 +10,14 @@
     </div>
 
     <div
+      class="alert alert-success"
+      role="alert"
+      *ngIf="latestLotteryWinner !== ''"
+    >
+      Latest lottery roll winner is {{ latestLotteryWinner }}.
+    </div>
+
+    <div
       class="alert d-flex justify-content-between align-items-center"
       [ngClass]="isBettingWindowOpen ? 'alert-success' : 'alert-danger'"
       role="alert"

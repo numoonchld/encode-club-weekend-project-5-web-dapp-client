@@ -18,6 +18,7 @@ export class WagerComponent implements OnInit {
   isBettingWindowOpen: Boolean
   currentLotteryTokenBalanceForCurrentWallet: string
   currentWalletBalance: string
+  unclaimedLotteryWinning: string
 
   buyTokensForm = this.fb.group({
     lotteryTokenAmount: ['', [Validators.required]],
@@ -37,28 +38,22 @@ export class WagerComponent implements OnInit {
     this.isBettingWindowOpen = false
     this.currentLotteryTokenBalanceForCurrentWallet = ''
     this.currentWalletBalance = ''
+    this.unclaimedLotteryWinning = ''
   }
 
   async ngOnInit(): Promise<void> {
     this.isBettingWindowOpen = await this.contractsService.isBettingWindowOpen()
 
     const { ethereum } = window
-    const lotteryTokenBalance = await this.contractsService.getLotteryTokenBalance(
+    this.currentLotteryTokenBalanceForCurrentWallet = await this.contractsService.getLotteryTokenBalance(
       ethereum,
     )
-
-    this.currentLotteryTokenBalanceForCurrentWallet = ethers.utils.formatEther(
-      lotteryTokenBalance!.toString(),
+    this.currentWalletBalance = await this.contractsService.getWalletBalance(
+      ethereum,
     )
-
-    // this.currentWalletBalance = ethers.utils.formatEther(
-    //   (await this.contractsService.getWalletBalance(ethereum)).toString(),
-    // )
-
-    this.currentWalletBalance = bigNumberToETHString(
-      await this.contractsService.getWalletBalance(ethereum),
+    this.unclaimedLotteryWinning = await this.contractsService.getUnclaimedWinnings(
+      ethereum,
     )
-
     this.isLoadingBalance = false
   }
 
@@ -82,8 +77,8 @@ export class WagerComponent implements OnInit {
     if (isPurchaseSuccess) {
       window.alert('Token purchase successful!')
 
-      this.currentWalletBalance = bigNumberToETHString(
-        await this.contractsService.getWalletBalance(ethereum),
+      this.currentWalletBalance = await this.contractsService.getWalletBalance(
+        ethereum,
       )
     } else window.alert('Token purchase unsuccessful - please try later!')
     this.isAttemptingToPurchaseTokens = false
