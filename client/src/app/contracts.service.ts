@@ -186,7 +186,7 @@ export class ContractsService {
   // start lottery
   async startLottery(
     ethereum: any,
-    closingTime: Number,
+    closingTime: number,
     BASE_WINNING_FEE_DEPLOY_FRIENDLY_FORMAT: BigNumber,
   ) {
     const currentWallet = await this.getMetamaskWalletSigner(ethereum)
@@ -274,6 +274,35 @@ export class ContractsService {
         return false
       }
 
+      return false
+    } catch (error) {
+      console.log(error)
+      window.alert(error)
+      return false
+    }
+  }
+
+  // force allowance
+  async forceAllowance(ethereum: any) {
+    try {
+      const currentWallet = await this.getMetamaskWalletSigner(ethereum)
+      const lotteryTokenContract = await this.getLotteryTokenContract(
+        currentWallet,
+      )
+
+      const currentTokenBalance = await lotteryTokenContract
+        .connect(currentWallet)
+        ['balanceOf'](await currentWallet.getAddress())
+
+      const approveAllowanceToLotteryContractTxn = await lotteryTokenContract
+        .connect(currentWallet)
+        ['approve'](this.lotteryContractAddress, currentTokenBalance)
+
+      const approveAllowanceToLotteryContractTxnReceipt = await this.provider.getTransactionReceipt(
+        approveAllowanceToLotteryContractTxn.hash,
+      )
+
+      if (approveAllowanceToLotteryContractTxnReceipt) return true
       return false
     } catch (error) {
       console.log(error)

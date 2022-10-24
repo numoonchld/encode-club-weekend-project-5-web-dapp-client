@@ -114,6 +114,20 @@
 
         <button
           class="btn btn-outline-secondary w-100 py-1"
+          (click)="forceAllowance()"
+        >
+          <span *ngIf="isForcingAllowance === false">Force allowance</span>
+          <div
+            *ngIf="isForcingAllowance === true"
+            class="spinner-border"
+            role="status"
+          >
+            <span class="visually-hidden">Loading...</span>
+          </div>
+        </button>
+
+        <button
+          class="btn btn-outline-secondary w-100 py-1"
           (click)="attemptTokenRedemption()"
           *ngIf="isLoadingBalance === false"
         >

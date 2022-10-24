@@ -16,7 +16,8 @@ export class LandingComponent implements OnInit {
   isAttemptingLotteryRoll: Boolean
   latestLotteryWinner: string
   lotteryTimeWindowCountdown: string
-  countdownInterval: any
+  closingTimeString: string
+  closingEpochInSeconds: number
 
   constructor(private contractsService: ContractsService) {
     this.lotteryContractAddress = ''
@@ -25,6 +26,8 @@ export class LandingComponent implements OnInit {
     this.isAttemptingLotteryRoll = false
     this.latestLotteryWinner = ''
     this.lotteryTimeWindowCountdown = ''
+    this.closingEpochInSeconds = 0
+    this.closingTimeString = ''
   }
 
   async ngOnInit(): Promise<void> {
@@ -32,7 +35,10 @@ export class LandingComponent implements OnInit {
     this.isBettingWindowOpen = await this.contractsService.isBettingWindowOpen()
     this.isLotteryRollAvailable = await this.contractsService.isLotteryRollAvailable()
     this.latestLotteryWinner = await this.contractsService.getLatestLotteryWinner()
-    await this.setCountdownTimerFromClosingEpoch()
+    this.closingEpochInSeconds = await this.contractsService.getClosingEpochTime()
+    this.closingTimeString = new Date(
+      this.closingEpochInSeconds * 1000,
+    ).toISOString()
   }
 
   async rollLottery() {
@@ -46,37 +52,5 @@ export class LandingComponent implements OnInit {
       await this.ngOnInit()
     }
     this.isAttemptingLotteryRoll = false
-  }
-
-  async setCountdownTimerFromClosingEpoch() {
-    const closingEpochInSeconds = await this.contractsService.getClosingEpochTime()
-    console.log(closingEpochInSeconds)
-
-    this.countdownInterval = setInterval(() => {
-      // this.lotteryTimeWindowCountdown =
-      const currentUIEpoch = currentEpoch()
-      const remainingBettingTIme = closingEpochInSeconds - currentUIEpoch
-      console.log({ remainingBettingTIme })
-
-      if (remainingBettingTIme <= 0) {
-        this.lotteryTimeWindowCountdown = '00h:00m:00s'
-        clearInterval(this.countdownInterval)
-      } else {
-        this.lotteryTimeWindowCountdown = this.secondsToHHMMSS(
-          remainingBettingTIme,
-        )
-      }
-    }, 1000)
-  }
-
-  secondsToHHMMSS(numOfSeconds: any) {
-    const h: Number = Math.floor(numOfSeconds / 3600)
-    const m: Number = Math.floor((numOfSeconds % 3600) / 60)
-    const s: Number = Math.floor((numOfSeconds % 3600) % 60)
-
-    const hDisplay = h > 0 ? h + (h == 1 ? ' hour, ' : ' hours, ') : ''
-    const mDisplay = m > 0 ? m + (m == 1 ? ' minute, ' : ' minutes, ') : ''
-    const sDisplay = s > 0 ? s + (s == 1 ? ' second' : ' seconds') : ''
-    return hDisplay + mDisplay + sDisplay
   }
 }
