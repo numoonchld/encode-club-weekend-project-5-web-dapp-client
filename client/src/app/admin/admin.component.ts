@@ -21,6 +21,9 @@ export class AdminComponent implements OnInit {
   isLoadingAccumulatedFees: Boolean
   accumulatedFees: string
   isLotteryStartAvailable: Boolean
+  ownerLotteryTokenBalance: string
+  currentWalletBalance: string
+  isAttemptingFeeCredit: Boolean
 
   startLotteryForm = this.fb.group({
     durationInSeconds: ['', [Validators.required]],
@@ -38,6 +41,9 @@ export class AdminComponent implements OnInit {
     this.isLoadingAccumulatedFees = false
     this.accumulatedFees = ''
     this.isLotteryStartAvailable = false
+    this.ownerLotteryTokenBalance = ''
+    this.currentWalletBalance = ''
+    this.isAttemptingFeeCredit = false
   }
 
   async ngOnInit(): Promise<void> {
@@ -47,6 +53,13 @@ export class AdminComponent implements OnInit {
     this.isOwnerLoggedIn = this.contractsService.determineIsCurrentAccountLotteryContractOwner()
     this.accumulatedFees = await this.contractsService.getAccumulatedFees()
     this.isLotteryStartAvailable = await this.contractsService.isLotteryStartAvailable()
+
+    this.ownerLotteryTokenBalance = await this.contractsService.getLotteryTokenBalance(
+      ethereum,
+    )
+    this.currentWalletBalance = await this.contractsService.getWalletBalance(
+      ethereum,
+    )
     // console.log(this.isOwnerLoggedIn)
 
     // TODO: Debug this update isOwnerLoggedIn state without page refresh
@@ -91,5 +104,19 @@ export class AdminComponent implements OnInit {
     }
 
     this.isAttemptingLotteryStart = false
+  }
+
+  async attemptFeeCredit() {
+    this.isAttemptingFeeCredit = true
+    const { ethereum } = window
+    const isFeeCreditSuccess = await this.contractsService.claimFeeCredit(
+      ethereum,
+    )
+
+    if (isFeeCreditSuccess) {
+      window.alert('Accumulates fees credit to owner!')
+      await this.ngOnInit()
+    }
+    this.isAttemptingFeeCredit = false
   }
 }

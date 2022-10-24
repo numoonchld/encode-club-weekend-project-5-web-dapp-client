@@ -429,4 +429,44 @@ export class ContractsService {
       return false
     }
   }
+
+  // get closing epoch time for current pool
+  async getClosingEpochTime() {
+    try {
+      const lotteryContract = await this.getLotteryContract()
+      const currentlySetLotteryContractClosingEpoch = (
+        await lotteryContract['lotteryClosingEpochInSeconds']()
+      ).toNumber()
+
+      return currentlySetLotteryContractClosingEpoch
+    } catch (error) {
+      console.log(error)
+      window.alert(error)
+      return 0
+    }
+  }
+
+  // claim fee credit
+  async claimFeeCredit(ethereum: any) {
+    try {
+      const currentWallet = await this.getMetamaskWalletSigner(ethereum)
+      const lotteryContract = await this.getLotteryContract()
+
+      const claimFeeCreditTxn = await lotteryContract
+        .connect(currentWallet)
+        ['collectFees']()
+
+      const claimFeeCreditTxnReceipt = await this.provider.getTransactionReceipt(
+        claimFeeCreditTxn.hash,
+      )
+
+      if (claimFeeCreditTxnReceipt) return true
+
+      return false
+    } catch (error) {
+      console.log(error)
+      window.alert(error)
+      return false
+    }
+  }
 }

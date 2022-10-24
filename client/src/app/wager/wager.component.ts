@@ -56,6 +56,7 @@ export class WagerComponent implements OnInit {
     this.unclaimedLotteryWinning = await this.contractsService.getUnclaimedWinnings(
       ethereum,
     )
+
     this.isLoadingBalance = false
   }
 
