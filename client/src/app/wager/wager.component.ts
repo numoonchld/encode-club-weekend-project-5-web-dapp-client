@@ -81,9 +81,13 @@ export class WagerComponent implements OnInit {
 
     if (isPurchaseSuccess) {
       window.alert('Token purchase successful!')
-      await this.ngOnInit()
+
+      this.currentWalletBalance = bigNumberToETHString(
+        await this.contractsService.getWalletBalance(ethereum),
+      )
     } else window.alert('Token purchase unsuccessful - please try later!')
     this.isAttemptingToPurchaseTokens = false
+    await this.ngOnInit()
   }
 
   async attemptTokenRedemption() {

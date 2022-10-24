@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core'
 import { ContractsService } from '../contracts.service'
 
+declare var window: any
+
 @Component({
   selector: 'app-landing',
   templateUrl: './landing.component.html',
@@ -27,11 +29,14 @@ export class LandingComponent implements OnInit {
 
   async rollLottery() {
     this.isAttemptingLotteryRoll = true
-    const isLotteryRollSuccess = await this.contractsService.rollLottery()
+    const { ethereum } = window
+    const isLotteryRollSuccess = await this.contractsService.rollLottery(
+      ethereum,
+    )
     if (isLotteryRollSuccess) {
       window.alert('Lottery roll successful!')
-      this.isAttemptingLotteryRoll = false
       await this.ngOnInit()
     }
+    this.isAttemptingLotteryRoll = false
   }
 }

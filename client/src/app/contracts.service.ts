@@ -166,8 +166,15 @@ export class ContractsService {
     const lotteryContract = await this.getLotteryContract()
     const isLotteryOpen = await lotteryContract['lotteryOpen']()
 
-    const lotteryClosingEpoch = await lotteryContract['']
-    if (isLotteryOpen && currentEpoch() < lotteryClosingEpoch) {
+    const currentlySetLotteryContractClosingEpoch = (
+      await lotteryContract['lotteryClosingEpochInSeconds']()
+    ).toNumber()
+    const captureEpoch = currentEpoch()
+
+    if (
+      isLotteryOpen &&
+      captureEpoch < currentlySetLotteryContractClosingEpoch
+    ) {
       return true
     }
     return false
@@ -312,7 +319,6 @@ export class ContractsService {
 
   // is lottery roll available
   async isLotteryRollAvailable() {
-    console.log('hello world')
     try {
       const lotteryContract = await this.getLotteryContract()
       const isLotteryOpenForBetting = await lotteryContract['lotteryOpen']()
@@ -321,17 +327,11 @@ export class ContractsService {
         await lotteryContract['lotteryClosingEpochInSeconds']()
       ).toNumber()
       const captureEpoch = currentEpoch()
-      console.log({
-        isLotteryOpenForBetting,
-        currentlySetLotteryContractClosingEpoch,
-        captureEpoch,
-      })
 
       if (
         isLotteryOpenForBetting &&
         currentlySetLotteryContractClosingEpoch < captureEpoch
       ) {
-        console.log('lottery roll pending!')
         return true
       }
       return false
@@ -356,16 +356,20 @@ export class ContractsService {
   }
 
   // roll lottery
-  async rollLottery() {
+  async rollLottery(ethereum: any) {
     try {
       const lotteryContract = await this.getLotteryContract()
-      const lotteryRollTxn = await lotteryContract['lotteryOpen']()
+      const currentWallet = await this.getMetamaskWalletSigner(ethereum)
 
-      const tokenPurchaseTxnReceipt = await this.provider.getTransactionReceipt(
-        lotteryRollTxn,
+      const lotteryRollTxn = await lotteryContract
+        .connect(currentWallet)
+        ['endLottery']()
+
+      const lotteryRollTxnReceipt = await this.provider.getTransactionReceipt(
+        lotteryRollTxn.hash,
       )
 
-      if (tokenPurchaseTxnReceipt) return true
+      if (lotteryRollTxnReceipt) return true
       return false
     } catch (error) {
       console.log(error)

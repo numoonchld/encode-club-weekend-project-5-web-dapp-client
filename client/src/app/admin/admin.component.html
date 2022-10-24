@@ -3,7 +3,11 @@
     Only the contract owner may use this area!
   </div>
 
-  <div class="alert alert-warning" role="alert">
+  <div
+    class="alert alert-warning"
+    role="alert"
+    *ngIf="isOwnerLoggedIn && isLotteryStartAvailable === false"
+  >
     Cannot start new lottery - previous lottery yet to be rolled!
   </div>
 

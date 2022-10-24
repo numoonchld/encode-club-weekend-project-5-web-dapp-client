@@ -89,5 +89,7 @@ export class AdminComponent implements OnInit {
       this.isAttemptingLotteryStart = false
       this.ngZone.run(() => this.router.navigate(['/']))
     }
+
+    this.isAttemptingLotteryStart = false
   }
 }
