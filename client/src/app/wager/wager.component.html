@@ -32,13 +32,25 @@
       </div>
 
       <div
-        class="alert alert-success"
+        class="alert alert-success d-flex justify-content-between align-items-center"
         role="alert"
         *ngIf="
           unclaimedLotteryWinning !== '' && unclaimedLotteryWinning !== '0.0'
         "
       >
-        You have unclaimed winnings of {{ unclaimedLotteryWinning }}!
+        <span
+          >You have unclaimed winnings of {{ unclaimedLotteryWinning }}!</span
+        >
+        <button class="btn btn-success" (click)="attemptWinningClaim()">
+          <span *ngIf="isClaimingWinning === false">Claim</span>
+          <span
+            class="spinner-border"
+            role="status"
+            *ngIf="isClaimingWinning === true"
+          >
+            <span class="visually-hidden">Loading...</span>
+          </span>
+        </button>
       </div>
     </div>
     <article class="card text-dark bg-light mb-3">

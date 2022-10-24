@@ -5,6 +5,7 @@ import * as ContractAddressesJSON from '../assets/contracts/contracts.json'
 import * as LotteryContractJSON from '../assets/contracts/lottery-contract/Lottery.json'
 import * as LotteryTokenContractJSON from '../assets/contracts/lottery-token-contract/LotteryToken.json'
 import currentEpoch from '../helpers/currentEpoch'
+import calculateWinningFee from '../helpers/calculateWinningFee'
 
 @Injectable({
   providedIn: 'root',
@@ -253,9 +254,13 @@ export class ContractsService {
       if (tokenPurchaseTxnReceipt) {
         // run approve on token contract
         // to approve token spending to lottery contract on behalf of the signer
-        const lotteryTokenContract = await this.getLotteryTokenContract()
+        const lotteryTokenContract = await this.getLotteryTokenContract(
+          currentWallet,
+        )
 
-        const currentTokenBalance = await this.getLotteryTokenBalance(ethereum)
+        const currentTokenBalance = await lotteryTokenContract['balanceOf'](
+          await currentWallet.getAddress(),
+        )
 
         const approveAllowanceToLotteryContractTxn = await lotteryTokenContract
           .connect(currentWallet)
@@ -402,11 +407,11 @@ export class ContractsService {
         await currentWallet.getAddress(),
       )
 
-      return bigNumberToETHString(unclaimedWinnings)
+      return [unclaimedWinnings, bigNumberToETHString(unclaimedWinnings)]
     } catch (error) {
       console.log(error)
       window.alert(error)
-      return ''
+      return []
     }
   }
 
@@ -461,6 +466,36 @@ export class ContractsService {
       )
 
       if (claimFeeCreditTxnReceipt) return true
+
+      return false
+    } catch (error) {
+      console.log(error)
+      window.alert(error)
+      return false
+    }
+  }
+
+  // claim winning
+  async claimWinning(
+    ethereum: any,
+    unclaimedLotteryWinningBN: ethers.BigNumber,
+  ) {
+    try {
+      const [, calculatedFee] = calculateWinningFee(unclaimedLotteryWinningBN)
+      console.log('calculated winning claim fee: ', calculatedFee)
+
+      const currentWallet = await this.getMetamaskWalletSigner(ethereum)
+      const lotteryContract = await this.getLotteryContract()
+
+      const claimWinningTxn = await lotteryContract
+        .connect(currentWallet)
+        ['withdrawWinning'](calculatedFee)
+
+      const claimWinningTxnReceipt = await this.provider.getTransactionReceipt(
+        claimWinningTxn.hash,
+      )
+
+      if (claimWinningTxnReceipt) return true
 
       return false
     } catch (error) {
