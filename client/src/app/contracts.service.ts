@@ -3,6 +3,7 @@ import { ethers, BigNumber } from 'ethers'
 import * as ContractAddressesJSON from '../assets/contracts/contracts.json'
 import * as LotteryContractJSON from '../assets/contracts/lottery-contract/Lottery.json'
 import * as LotteryTokenContractJSON from '../assets/contracts/lottery-token-contract/LotteryToken.json'
+import currentEpoch from '../helpers/currentEpoch'
 
 @Injectable({
   providedIn: 'root',
@@ -92,6 +93,7 @@ export class ContractsService {
     return metamaskWalletProvider.getSigner()
   }
 
+  // instantiate lottery contract
   async getLotteryContract(signer?: ethers.Signer) {
     let lotteryContract: ethers.Contract
 
@@ -110,6 +112,27 @@ export class ContractsService {
     }
 
     return lotteryContract
+  }
+
+  // instantiate token contract
+  async getLotteryTokenContract(signer?: ethers.Signer) {
+    let lotteryTokenContract: ethers.Contract
+
+    if (signer) {
+      lotteryTokenContract = new ethers.Contract(
+        this.lotteryTokenContractAddress,
+        this.lotteryTokenContractJSON.abi,
+        signer,
+      )
+    } else {
+      lotteryTokenContract = new ethers.Contract(
+        this.lotteryTokenContractAddress,
+        this.lotteryTokenContractJSON.abi,
+        this.provider,
+      )
+    }
+
+    return lotteryTokenContract
   }
 
   // load contract owner
@@ -135,8 +158,12 @@ export class ContractsService {
   async isBettingWindowOpen() {
     const lotteryContract = await this.getLotteryContract()
     const isLotteryOpen = await lotteryContract['lotteryOpen']()
-    console.log({ isLotteryOpen })
-    return isLotteryOpen
+
+    const lotteryClosingEpoch = await lotteryContract['']
+    if (isLotteryOpen && currentEpoch() < lotteryClosingEpoch) {
+      return true
+    }
+    return false
   }
 
   // start lottery
@@ -161,10 +188,74 @@ export class ContractsService {
         .connect(currentWallet)
         ['startLottery'](closingTime, BASE_WINNING_FEE_DEPLOY_FRIENDLY_FORMAT)
 
-      await startLotteryTxn.wait()
-      console.log(startLotteryTxn)
+      return [startLotteryTxn.hash]
+    } catch (error) {
+      console.log(error)
+      window.alert(error)
+      return false
+    }
+  }
 
-      return startLotteryTxn
+  // get lottery token balance
+  async getLotteryTokenBalance(ethereum: any) {
+    try {
+      const currentWallet = await this.getMetamaskWalletSigner(ethereum)
+      const lotteryTokenContract = await this.getLotteryTokenContract()
+
+      const currentAccountTokenBalance = await lotteryTokenContract[
+        'balanceOf'
+      ](await currentWallet.getAddress())
+
+      return currentAccountTokenBalance
+    } catch (error) {
+      console.log('Can not get token balance: ', error)
+      window.alert('Can not get token balance: ' + `${error}`)
+      return false
+    }
+  }
+
+  // token purchase
+  async purchaseLotteryTokens(
+    ethereum: any,
+    lotteryTokenAmount: string,
+  ): Promise<Boolean> {
+    try {
+      const currentWallet = await this.getMetamaskWalletSigner(ethereum)
+
+      // run purchase function on lottery contract itself
+      const lotteryContract = await this.getLotteryContract()
+      const tokenPurchaseTxn = await lotteryContract
+        .connect(currentWallet)
+        ['sellLotteryTokens']({
+          value: ethers.utils.parseEther(lotteryTokenAmount),
+        })
+      // console.log({ tokenPurchaseTxn })
+
+      const tokenPurchaseTxnReceipt = await this.provider.getTransactionReceipt(
+        tokenPurchaseTxn.hash,
+      )
+
+      if (tokenPurchaseTxnReceipt) {
+        // run approve on token contract
+        // to delegate token spending to lottery contract on behalf of the signer
+        const lotteryTokenContract = await this.getLotteryTokenContract()
+
+        const currentTokenBalance = await this.getLotteryTokenBalance(ethereum)
+        // console.log({ currentTokenBalance })
+
+        const approveAllowanceToLotteryContractTxn = await lotteryTokenContract
+          .connect(currentWallet)
+          ['approve'](this.lotteryContractAddress, currentTokenBalance)
+
+        const approveAllowanceToLotteryContractTxnReceipt = await this.provider.getTransactionReceipt(
+          approveAllowanceToLotteryContractTxn.hash,
+        )
+
+        if (approveAllowanceToLotteryContractTxnReceipt) return true
+        return false
+      }
+
+      return false
     } catch (error) {
       console.log(error)
       window.alert(error)
