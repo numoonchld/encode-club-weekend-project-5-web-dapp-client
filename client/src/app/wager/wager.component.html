@@ -2,7 +2,7 @@
   <div class="d-flex flex-column gap-5">
     <div class="d-flex flex-column gap-2">
       <div
-        class="alert"
+        class="alert d-flex justify-content-between align-items-center"
         [ngClass]="isBettingWindowOpen ? 'alert-success' : 'alert-danger'"
         role="alert"
       >
@@ -11,12 +11,25 @@
             ? "Betting is open!"
             : "Lottery is currently not open for betting!"
         }}
+
+        <button
+          type="button"
+          *ngIf="isBettingWindowOpen === true"
+          class="btn btn-primary"
+          (click)="attemptPlacingBets()"
+        >
+          <!-- <i class="fas fa-dice fa-2x"></i> -->
+          <!-- <i class="fas fa-dice"></i> -->
+          Bet
+        </button>
       </div>
 
       <div
         class="alert alert-success"
         role="alert"
-        *ngIf="unclaimedLotteryWinning !== ''"
+        *ngIf="
+          unclaimedLotteryWinning !== '' && unclaimedLotteryWinning !== '0.0'
+        "
       >
         You have unclaimed winnings of {{ unclaimedLotteryWinning }}!
       </div>
@@ -68,7 +81,7 @@
             />
           </div>
 
-          <button type="submit" class="btn btn-outline-success w-100 py-1">
+          <button type="submit" class="btn btn-outline-secondary w-100 py-1">
             <span *ngIf="isAttemptingToPurchaseTokens === false">Buy</span>
             <div
               *ngIf="isAttemptingToPurchaseTokens === true"
@@ -81,7 +94,7 @@
         </form>
 
         <button
-          class="btn btn-outline-dark w-100 py-1"
+          class="btn btn-outline-secondary w-100 py-1"
           (click)="attemptTokenRedemption()"
           *ngIf="isLoadingBalance === false"
         >

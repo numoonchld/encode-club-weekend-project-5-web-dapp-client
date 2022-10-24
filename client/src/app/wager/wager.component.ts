@@ -19,6 +19,7 @@ export class WagerComponent implements OnInit {
   currentLotteryTokenBalanceForCurrentWallet: string
   currentWalletBalance: string
   unclaimedLotteryWinning: string
+  isPlacingBet: Boolean
 
   buyTokensForm = this.fb.group({
     lotteryTokenAmount: ['', [Validators.required]],
@@ -39,6 +40,7 @@ export class WagerComponent implements OnInit {
     this.currentLotteryTokenBalanceForCurrentWallet = ''
     this.currentWalletBalance = ''
     this.unclaimedLotteryWinning = ''
+    this.isPlacingBet = false
   }
 
   async ngOnInit(): Promise<void> {
@@ -97,5 +99,12 @@ export class WagerComponent implements OnInit {
       await this.ngOnInit()
     }
     this.isAttemptingTokenRedemption = false
+  }
+
+  async attemptPlacingBets() {
+    this.isPlacingBet = true
+    const { ethereum } = window
+
+    const isPlacingBetSuccess = await this.contractsService.placeBets(ethereum)
   }
 }

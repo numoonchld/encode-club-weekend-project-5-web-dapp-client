@@ -409,4 +409,24 @@ export class ContractsService {
       return ''
     }
   }
+
+  // place bets
+  async placeBets(ethereum: any) {
+    try {
+      const lotteryContract = await this.getLotteryContract()
+      const currentWallet = await this.getMetamaskWalletSigner(ethereum)
+      const placeBetTxn = await lotteryContract.connect(currentWallet)['bet']()
+
+      const placeBetTxnReceipt = await this.provider.getTransactionReceipt(
+        placeBetTxn.hash,
+      )
+
+      if (placeBetTxnReceipt) return true
+      return false
+    } catch (error) {
+      console.log(error)
+      window.alert(error)
+      return false
+    }
+  }
 }
