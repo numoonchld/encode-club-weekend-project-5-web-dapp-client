@@ -293,4 +293,21 @@ export class ContractsService {
 
     return false
   }
+
+  // get accumulated fees
+  async getAccumulatedFees() {
+    let accumulatedFees = ''
+
+    try {
+      const lotteryContract = await this.getLotteryContract()
+      accumulatedFees = await lotteryContract['feeCollection']()
+
+      console.log({ accumulatedFees })
+      return accumulatedFees
+    } catch (error) {
+      console.log(error)
+      window.alert(error)
+      return ''
+    }
+  }
 }

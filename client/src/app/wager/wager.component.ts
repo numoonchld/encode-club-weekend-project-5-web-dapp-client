@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core'
 import { ContractsService } from '../contracts.service'
 import { FormBuilder, Validators } from '@angular/forms'
 import { ethers } from 'ethers'
+import bigNumberToETHString from 'src/helpers/bigNumberToETHString'
 
 declare var window: any
 
@@ -50,8 +51,12 @@ export class WagerComponent implements OnInit {
       lotteryTokenBalance!.toString(),
     )
 
-    this.currentWalletBalance = ethers.utils.formatEther(
-      (await this.contractsService.getWalletBalance(ethereum)).toString(),
+    // this.currentWalletBalance = ethers.utils.formatEther(
+    //   (await this.contractsService.getWalletBalance(ethereum)).toString(),
+    // )
+
+    this.currentWalletBalance = bigNumberToETHString(
+      await this.contractsService.getWalletBalance(ethereum),
     )
 
     this.isLoadingBalance = false

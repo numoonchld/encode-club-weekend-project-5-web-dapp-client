@@ -15,14 +15,14 @@
           >
             <div class="mb-3">
               <label for="closing-time-epoch-string-field" class="form-label"
-                >Closing time</label
+                >Duration (seconds)</label
               >
               <input
                 type="text"
                 class="form-control"
-                placeholder="epoch time in seconds"
+                placeholder="lottery window time in seconds"
                 id="closing-time-epoch-string-field"
-                formControlName="closingTime"
+                formControlName="durationInSeconds"
               />
             </div>
 
@@ -61,9 +61,17 @@
 
       <article class="card">
         <h3 class="card-header">Collect lottery fees</h3>
-        <div
-          class="card-body d-flex flex-column gap-3 align-items-center"
-        ></div>
+        <div class="card-body d-flex flex-column gap-3 align-items-center">
+          <span
+            *ngIf="isLoadingAccumulatedFees === false && accumulatedFees !== ''"
+          >
+          </span>
+          <span
+            *ngIf="isLoadingAccumulatedFees === false && accumulatedFees !== ''"
+          >
+            (accumulated fees)
+          </span>
+        </div>
       </article>
     </div>
   </div>

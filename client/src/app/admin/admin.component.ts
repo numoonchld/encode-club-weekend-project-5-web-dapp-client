@@ -2,7 +2,11 @@ import { Component, OnInit } from '@angular/core'
 import { ContractsService } from '../contracts.service'
 import { FormBuilder, Validators } from '@angular/forms'
 
+import { NgZone } from '@angular/core'
+import { Router } from '@angular/router'
+
 import { ethers } from 'ethers'
+import currentEpoch from 'src/helpers/currentEpoch'
 
 declare var window: any
 
@@ -14,18 +18,24 @@ declare var window: any
 export class AdminComponent implements OnInit {
   isOwnerLoggedIn: Boolean
   isAttemptingLotteryStart: Boolean
+  isLoadingAccumulatedFees: Boolean
+  accumulatedFees: string
 
   startLotteryForm = this.fb.group({
-    closingTime: ['', [Validators.required]],
+    durationInSeconds: ['', [Validators.required]],
     baseWinningWithdrawFee: ['', [Validators.required]],
   })
 
   constructor(
     private contractsService: ContractsService,
     private fb: FormBuilder,
+    private ngZone: NgZone,
+    private router: Router,
   ) {
     this.isOwnerLoggedIn = false
     this.isAttemptingLotteryStart = false
+    this.isLoadingAccumulatedFees = false
+    this.accumulatedFees = ''
   }
 
   async ngOnInit(): Promise<void> {
@@ -33,6 +43,7 @@ export class AdminComponent implements OnInit {
     await this.contractsService.checkWalletConnection(ethereum)
     await this.contractsService.loadContractOwner(ethereum)
     this.isOwnerLoggedIn = this.contractsService.determineIsCurrentAccountLotteryContractOwner()
+    this.accumulatedFees = await this.contractsService.getAccumulatedFees()
     // console.log(this.isOwnerLoggedIn)
 
     // TODO: Debug this update isOwnerLoggedIn state without page refresh
@@ -50,19 +61,30 @@ export class AdminComponent implements OnInit {
     this.isAttemptingLotteryStart = true
 
     const { ethereum } = window
-    const { closingTime, baseWinningWithdrawFee } = this.startLotteryForm.value
+    const {
+      durationInSeconds,
+      baseWinningWithdrawFee,
+    } = this.startLotteryForm.value
 
-    if (!closingTime || !baseWinningWithdrawFee) {
+    if (!durationInSeconds || !baseWinningWithdrawFee) {
       window.alert('Form not correctly filled - try again!')
       this.isAttemptingLotteryStart = false
       return
     }
-    console.log({ closingTime, baseWinningWithdrawFee })
+    console.log({ durationInSeconds, baseWinningWithdrawFee })
 
-    const txn = await this.contractsService.startLottery(
+    const computedClosingTime = currentEpoch() + parseInt(durationInSeconds!)
+
+    const isStartLotterySuccess = await this.contractsService.startLottery(
       ethereum,
-      parseInt(closingTime!),
+      computedClosingTime,
       ethers.utils.parseEther(baseWinningWithdrawFee!),
     )
+
+    if (isStartLotterySuccess) {
+      window.alert('New lottery started!')
+      this.isAttemptingLotteryStart = false
+      this.ngZone.run(() => this.router.navigate(['/']))
+    }
   }
 }
