@@ -14,7 +14,7 @@ export class WagerComponent implements OnInit {
   isAttemptingToPurchaseTokens: Boolean
   isLoadingBalance: Boolean
   isBettingWindowOpen: Boolean
-  getLotteryTokenBalanceForCurrentWallet: string
+  currentLotteryTokenBalanceForCurrentWallet: string
 
   buyTokensForm = this.fb.group({
     lotteryTokenAmount: ['', [Validators.required]],
@@ -31,7 +31,7 @@ export class WagerComponent implements OnInit {
     this.isAttemptingToPurchaseTokens = false
     this.isLoadingBalance = true
     this.isBettingWindowOpen = false
-    this.getLotteryTokenBalanceForCurrentWallet = ''
+    this.currentLotteryTokenBalanceForCurrentWallet = ''
   }
 
   async ngOnInit(): Promise<void> {
@@ -42,7 +42,7 @@ export class WagerComponent implements OnInit {
       ethereum,
     )
 
-    this.getLotteryTokenBalanceForCurrentWallet = ethers.utils.formatEther(
+    this.currentLotteryTokenBalanceForCurrentWallet = ethers.utils.formatEther(
       lotteryTokenBalance!.toString(),
     )
 
@@ -71,5 +71,7 @@ export class WagerComponent implements OnInit {
     this.isAttemptingToPurchaseTokens = false
   }
 
-  async attemptTokenRedemption() {}
+  async attemptTokenRedemption() {
+    const currentTokenBalance = this.currentLotteryTokenBalanceForCurrentWallet
+  }
 }
