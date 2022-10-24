@@ -14,11 +14,9 @@
       [ngClass]="isBettingWindowOpen ? 'alert-success' : 'alert-danger'"
       role="alert"
     >
-      {{
-        isBettingWindowOpen
-          ? "Betting is open!"
-          : "Lottery is currently not open for betting!"
-      }}
+      <span>{{
+        isBettingWindowOpen ? "Betting is open!" : "Betting is not open!"
+      }}</span>
 
       <button
         type="button"
@@ -28,6 +26,31 @@
       >
         <!-- <i class="fas fa-dice fa-2x"></i> -->
         <i class="fas fa-dice"></i>
+      </button>
+    </div>
+
+    <div
+      class="alert alert-warning d-flex justify-content-between align-items-center"
+      *ngIf="isLotteryRollAvailable === true"
+      role="alert"
+    >
+      <span> Lottery roll pending!</span>
+
+      <button
+        type="button"
+        *ngIf="isLotteryRollAvailable === true"
+        class="btn btn-primary"
+        (click)="rollLottery()"
+      >
+        <!-- <i class="fas fa-dice fa-2x"></i> -->
+        <i class="fas fa-dice" *ngIf="isAttemptingLotteryRoll === false"></i>
+        <span
+          class="spinner-border"
+          role="status"
+          *ngIf="isAttemptingLotteryRoll === true"
+        >
+          <span class="visually-hidden">Loading...</span>
+        </span>
       </button>
     </div>
   </div>

@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core'
 import { ethers, BigNumber } from 'ethers'
+import bigNumberToETHString from 'src/helpers/bigNumberToETHString'
 import * as ContractAddressesJSON from '../assets/contracts/contracts.json'
 import * as LotteryContractJSON from '../assets/contracts/lottery-contract/Lottery.json'
 import * as LotteryTokenContractJSON from '../assets/contracts/lottery-token-contract/LotteryToken.json'
@@ -289,25 +290,87 @@ export class ContractsService {
     } catch (error) {
       console.log(error)
       window.alert(error)
+      return false
     }
-
-    return false
   }
 
   // get accumulated fees
   async getAccumulatedFees() {
-    let accumulatedFees = ''
+    let accumulatedFees: BigNumber
 
     try {
       const lotteryContract = await this.getLotteryContract()
       accumulatedFees = await lotteryContract['feeCollection']()
 
-      console.log({ accumulatedFees })
-      return accumulatedFees
+      return bigNumberToETHString(accumulatedFees)
     } catch (error) {
       console.log(error)
       window.alert(error)
       return ''
+    }
+  }
+
+  // is lottery roll available
+  async isLotteryRollAvailable() {
+    console.log('hello world')
+    try {
+      const lotteryContract = await this.getLotteryContract()
+      const isLotteryOpenForBetting = await lotteryContract['lotteryOpen']()
+
+      const currentlySetLotteryContractClosingEpoch = (
+        await lotteryContract['lotteryClosingEpochInSeconds']()
+      ).toNumber()
+      const captureEpoch = currentEpoch()
+      console.log({
+        isLotteryOpenForBetting,
+        currentlySetLotteryContractClosingEpoch,
+        captureEpoch,
+      })
+
+      if (
+        isLotteryOpenForBetting &&
+        currentlySetLotteryContractClosingEpoch < captureEpoch
+      ) {
+        console.log('lottery roll pending!')
+        return true
+      }
+      return false
+    } catch (error) {
+      console.log(error)
+      window.alert(error)
+      return false
+    }
+  }
+
+  // is lottery start available
+  async isLotteryStartAvailable() {
+    try {
+      const lotteryContract = await this.getLotteryContract()
+      const isLotteryOpenForBetting = await lotteryContract['lotteryOpen']()
+      return !isLotteryOpenForBetting
+    } catch (error) {
+      console.log(error)
+      window.alert(error)
+      return false
+    }
+  }
+
+  // roll lottery
+  async rollLottery() {
+    try {
+      const lotteryContract = await this.getLotteryContract()
+      const lotteryRollTxn = await lotteryContract['lotteryOpen']()
+
+      const tokenPurchaseTxnReceipt = await this.provider.getTransactionReceipt(
+        lotteryRollTxn,
+      )
+
+      if (tokenPurchaseTxnReceipt) return true
+      return false
+    } catch (error) {
+      console.log(error)
+      window.alert(error)
+      return false
     }
   }
 }

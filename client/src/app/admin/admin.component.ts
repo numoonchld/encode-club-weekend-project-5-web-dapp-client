@@ -20,6 +20,7 @@ export class AdminComponent implements OnInit {
   isAttemptingLotteryStart: Boolean
   isLoadingAccumulatedFees: Boolean
   accumulatedFees: string
+  isLotteryStartAvailable: Boolean
 
   startLotteryForm = this.fb.group({
     durationInSeconds: ['', [Validators.required]],
@@ -36,6 +37,7 @@ export class AdminComponent implements OnInit {
     this.isAttemptingLotteryStart = false
     this.isLoadingAccumulatedFees = false
     this.accumulatedFees = ''
+    this.isLotteryStartAvailable = false
   }
 
   async ngOnInit(): Promise<void> {
@@ -44,6 +46,7 @@ export class AdminComponent implements OnInit {
     await this.contractsService.loadContractOwner(ethereum)
     this.isOwnerLoggedIn = this.contractsService.determineIsCurrentAccountLotteryContractOwner()
     this.accumulatedFees = await this.contractsService.getAccumulatedFees()
+    this.isLotteryStartAvailable = await this.contractsService.isLotteryStartAvailable()
     // console.log(this.isOwnerLoggedIn)
 
     // TODO: Debug this update isOwnerLoggedIn state without page refresh
