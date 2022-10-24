@@ -58,10 +58,25 @@ export class LandingComponent implements OnInit {
       const remainingBettingTIme = closingEpochInSeconds - currentUIEpoch
       console.log({ remainingBettingTIme })
 
-      if (remainingBettingTIme < 0) {
+      if (remainingBettingTIme <= 0) {
         this.lotteryTimeWindowCountdown = '00h:00m:00s'
         clearInterval(this.countdownInterval)
+      } else {
+        this.lotteryTimeWindowCountdown = this.secondsToHHMMSS(
+          remainingBettingTIme,
+        )
       }
     }, 1000)
+  }
+
+  secondsToHHMMSS(numOfSeconds: any) {
+    const h: Number = Math.floor(numOfSeconds / 3600)
+    const m: Number = Math.floor((numOfSeconds % 3600) / 60)
+    const s: Number = Math.floor((numOfSeconds % 3600) % 60)
+
+    const hDisplay = h > 0 ? h + (h == 1 ? ' hour, ' : ' hours, ') : ''
+    const mDisplay = m > 0 ? m + (m == 1 ? ' minute, ' : ' minutes, ') : ''
+    const sDisplay = s > 0 ? s + (s == 1 ? ' second' : ' seconds') : ''
+    return hDisplay + mDisplay + sDisplay
   }
 }
