@@ -20,7 +20,14 @@
         >
           <!-- <i class="fas fa-dice fa-2x"></i> -->
           <!-- <i class="fas fa-dice"></i> -->
-          Bet
+          <span *ngIf="isPlacingBet === false">Bet</span>
+          <span
+            class="spinner-border"
+            role="status"
+            *ngIf="isPlacingBet === true"
+          >
+            <span class="visually-hidden">Loading...</span>
+          </span>
         </button>
       </div>
 

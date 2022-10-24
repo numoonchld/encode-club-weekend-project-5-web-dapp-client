@@ -106,5 +106,11 @@ export class WagerComponent implements OnInit {
     const { ethereum } = window
 
     const isPlacingBetSuccess = await this.contractsService.placeBets(ethereum)
+
+    if (isPlacingBetSuccess) {
+      window.alert('Placed bet successfully!')
+      await this.ngOnInit()
+    }
+    this.isPlacingBet = false
   }
 }
