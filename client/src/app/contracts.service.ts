@@ -540,28 +540,64 @@ export class ContractsService {
     }
   }
 
+  // should winning claim be enabled?
+  async shouldWinningClaimBeEnabled(
+    unclaimedLotteryWinningBN: ethers.BigNumber,
+  ) {
+    try {
+      const [winningAfterFeeDeduction, calculatedFee] = calculateWinningFee(
+        unclaimedLotteryWinningBN,
+      )
+
+      const lotteryContract = await this.getLotteryContract()
+
+      const baseWinningClaimFee = await lotteryContract[
+        'winningWithdrawBaseFee'
+      ]()
+
+      console.log({ baseWinningClaimFee, winningAfterFeeDeduction })
+
+      return winningAfterFeeDeduction.gt(baseWinningClaimFee)
+    } catch (error) {
+      console.log(error)
+      window.alert(error)
+      return false
+    }
+  }
+
   // claim winning
   async claimWinning(
     ethereum: any,
     unclaimedLotteryWinningBN: ethers.BigNumber,
   ) {
     try {
-      const [, calculatedFee] = calculateWinningFee(unclaimedLotteryWinningBN)
-      console.log('calculated winning claim fee: ', calculatedFee)
+      const [winningAfterFeeDeduction, calculatedFee] = calculateWinningFee(
+        unclaimedLotteryWinningBN,
+      )
 
       const currentWallet = await this.getMetamaskWalletSigner(ethereum)
       const lotteryContract = await this.getLotteryContract()
 
-      const claimWinningTxn = await lotteryContract
-        .connect(currentWallet)
-        ['withdrawWinning'](calculatedFee)
+      const baseWinningClaimFee = await lotteryContract[
+        'winningWithdrawBaseFee'
+      ]()
 
-      const claimWinningTxnReceipt = await this.provider.getTransactionReceipt(
-        claimWinningTxn.hash,
+      console.log({ baseWinningClaimFee, winningAfterFeeDeduction })
+
+      if (winningAfterFeeDeduction.gt(baseWinningClaimFee)) {
+        const claimWinningTxn = await lotteryContract
+          .connect(currentWallet)
+          ['withdrawWinning'](calculatedFee)
+
+        const claimWinningTxnReceipt = await this.provider.getTransactionReceipt(
+          claimWinningTxn.hash,
+        )
+
+        if (claimWinningTxnReceipt) return true
+      }
+      window.alert(
+        'Winnings less that fee - collect winnings when you have won more!',
       )
-
-      if (claimWinningTxnReceipt) return true
-
       return false
     } catch (error) {
       console.log(error)

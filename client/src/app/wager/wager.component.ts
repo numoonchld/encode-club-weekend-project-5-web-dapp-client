@@ -23,6 +23,7 @@ export class WagerComponent implements OnInit {
   isPlacingBet: Boolean
   isClaimingWinning: Boolean
   isForcingAllowance: Boolean
+  isWinningClaimable: boolean
 
   buyTokensForm = this.fb.group({
     lotteryTokenAmount: ['', [Validators.required]],
@@ -47,6 +48,7 @@ export class WagerComponent implements OnInit {
     this.isClaimingWinning = false
     this.unclaimedLotteryWinningBN = ethers.BigNumber.from(0)
     this.isForcingAllowance = false
+    this.isWinningClaimable = false
   }
 
   async ngOnInit(): Promise<void> {
@@ -65,6 +67,12 @@ export class WagerComponent implements OnInit {
     ] = await this.contractsService.getUnclaimedWinnings(ethereum)
 
     this.isLoadingBalance = false
+  }
+
+  async shouldWinningClaimBeEnabled() {
+    this.isWinningClaimable = await this.contractsService.shouldWinningClaimBeEnabled(
+      this.unclaimedLotteryWinningBN,
+    )
   }
 
   async attemptTokenPurchase() {
@@ -139,6 +147,7 @@ export class WagerComponent implements OnInit {
     this.isClaimingWinning = false
   }
 
+  /*
   async forceAllowance() {
     const { ethereum } = window
     const isForceAllowanceSuccess = await this.contractsService.forceAllowance(
@@ -151,4 +160,5 @@ export class WagerComponent implements OnInit {
     }
     this.isForcingAllowance = false
   }
+  */
 }

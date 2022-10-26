@@ -41,7 +41,11 @@
         <span
           >You have unclaimed winnings of {{ unclaimedLotteryWinning }}!</span
         >
-        <button class="btn btn-success" (click)="attemptWinningClaim()">
+        <button
+          class="btn btn-success"
+          (click)="attemptWinningClaim()"
+          [disabled]="isWinningClaimable === true ? false : true"
+        >
           <span *ngIf="isClaimingWinning === false">Claim</span>
           <span
             class="spinner-border"
@@ -112,6 +116,7 @@
           </button>
         </form>
 
+        <!--
         <button
           class="btn btn-outline-secondary w-100 py-1"
           (click)="forceAllowance()"
@@ -125,6 +130,7 @@
             <span class="visually-hidden">Loading...</span>
           </div>
         </button>
+        -->
 
         <button
           class="btn btn-outline-secondary w-100 py-1"
