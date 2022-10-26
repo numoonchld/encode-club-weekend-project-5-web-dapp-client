@@ -235,7 +235,9 @@ export class ContractsService {
   async purchaseLotteryTokens(
     ethereum: any,
     lotteryTokenAmount: string,
-  ): Promise<Boolean> {
+  ): Promise<boolean> {
+    let isSuccess = false
+
     try {
       const currentWallet = await this.getMetamaskWalletSigner(ethereum)
 
@@ -247,7 +249,7 @@ export class ContractsService {
           value: ethers.utils.parseEther(lotteryTokenAmount),
         })
 
-      tokenPurchaseTxn.wait().then(async (response: any) => {
+      await tokenPurchaseTxn.wait().then(async (response: any) => {
         console.log({ response })
         const { confirmations, logs } = response
         console.log({ confirmations, logs })
@@ -270,51 +272,22 @@ export class ContractsService {
             .connect(currentWallet)
             ['approve'](this.lotteryContractAddress, currentTokenBalance)
 
-          approveAllowanceToLotteryContractTxn.wait().then((response1: any) => {
-            const { confirmations, logs } = response1
-
-            if (confirmations > 0) return true
-            return false
-          })
-
-          return false
+          await approveAllowanceToLotteryContractTxn
+            .wait()
+            .then((response1: any) => {
+              if (response1.confirmations > 0) {
+                isSuccess = true
+              } else {
+                isSuccess = false
+              }
+            })
         }
-        return false
       })
-
-      /*
-      const tokenPurchaseTxnReceipt = await this.provider.getTransactionReceipt(
-        tokenPurchaseTxn.hash,
-      )
-
-      if (tokenPurchaseTxnReceipt) {
-        // run approve on token contract
-        // to approve token spending to lottery contract on behalf of the signer
-        const lotteryTokenContract = await this.getLotteryTokenContract(
-          currentWallet,
-        )
-
-        const currentTokenBalance = await lotteryTokenContract['balanceOf'](
-          await currentWallet.getAddress(),
-        )
-
-        const approveAllowanceToLotteryContractTxn = await lotteryTokenContract
-          .connect(currentWallet)
-          ['approve'](this.lotteryContractAddress, currentTokenBalance)
-
-        const approveAllowanceToLotteryContractTxnReceipt = await this.provider.getTransactionReceipt(
-          approveAllowanceToLotteryContractTxn.hash,
-        )
-
-        if (approveAllowanceToLotteryContractTxnReceipt) return true
-        return false
-      }
-      */
-      return false
+      return isSuccess
     } catch (error) {
       console.log(error)
       window.alert(error)
-      return false
+      return isSuccess
     }
   }
 
