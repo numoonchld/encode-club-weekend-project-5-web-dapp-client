@@ -247,6 +247,42 @@ export class ContractsService {
           value: ethers.utils.parseEther(lotteryTokenAmount),
         })
 
+      tokenPurchaseTxn.wait().then(async (response: any) => {
+        console.log({ response })
+        const { confirmations, logs } = response
+        console.log({ confirmations, logs })
+
+        if (
+          confirmations > 0 &&
+          logs.filter(
+            (log: any) => log.address === this.lotteryTokenContractAddress,
+          ).length > 0
+        ) {
+          const lotteryTokenContract = await this.getLotteryTokenContract(
+            currentWallet,
+          )
+
+          const currentTokenBalance = await lotteryTokenContract['balanceOf'](
+            await currentWallet.getAddress(),
+          )
+
+          const approveAllowanceToLotteryContractTxn = await lotteryTokenContract
+            .connect(currentWallet)
+            ['approve'](this.lotteryContractAddress, currentTokenBalance)
+
+          approveAllowanceToLotteryContractTxn.wait().then((response1: any) => {
+            const { confirmations, logs } = response1
+
+            if (confirmations > 0) return true
+            return false
+          })
+
+          return false
+        }
+        return false
+      })
+
+      /*
       const tokenPurchaseTxnReceipt = await this.provider.getTransactionReceipt(
         tokenPurchaseTxn.hash,
       )
@@ -273,7 +309,7 @@ export class ContractsService {
         if (approveAllowanceToLotteryContractTxnReceipt) return true
         return false
       }
-
+      */
       return false
     } catch (error) {
       console.log(error)
