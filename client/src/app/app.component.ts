@@ -23,6 +23,11 @@ export class AppComponent {
     })
 
     this.contractsService.loadContractOwner(ethereum)
+
+    // handle change of wallet account
+    ethereum.on('accountsChanged', () => {
+      location.reload()
+    })
   }
 
   // connect to metamask wallet on button click
