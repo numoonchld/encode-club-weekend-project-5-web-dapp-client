@@ -48,25 +48,22 @@ export class ContractsService {
   async checkWalletConnection(ethereum: any) {
     try {
       if (!ethereum) {
-        console.log('Install MetaMask!')
         window.alert('MetaMask needed to use this site!')
       } else {
-        // console.log('Ethereum object found!', ethereum)
-        console.log('Ethereum object found!')
+        //
       }
 
       const accounts = await ethereum.request({ method: 'eth_accounts' })
 
       if (accounts.length !== 0) {
         const account = accounts[0]
-        console.log('Found authorized account!', account)
-        // console.log('Found authorized account!')
+
+        //
         this.currentAccount = account
 
         this.isLoggedIn = true
         return true
       } else {
-        console.log('No authorized account found!')
         this.isLoggedIn = false
         window.alert('Connect site to MetaMask account to use this page!')
         return false
@@ -150,14 +147,12 @@ export class ContractsService {
     // const signer = await this.getMetamaskWalletSigner(ethereum)
     const lotteryContract = await this.getLotteryContract()
     const owner = await lotteryContract['owner']()
-    // console.log('owner: ', await owner)
+    //
     this.contractOwner = await owner
   }
 
   // is a lottery active
   determineIsCurrentAccountLotteryContractOwner(): Boolean {
-    console.log('owner: --', this.contractOwner)
-    console.log('loggedIn: ', this.currentAccount)
     return (
       this.contractOwner.toLowerCase().trim() ===
       this.currentAccount.toLowerCase().trim()
@@ -190,7 +185,7 @@ export class ContractsService {
     BASE_WINNING_FEE_DEPLOY_FRIENDLY_FORMAT: BigNumber,
   ) {
     const currentWallet = await this.getMetamaskWalletSigner(ethereum)
-    console.log(await currentWallet.getAddress(), this.contractOwner)
+
     if (
       (await currentWallet.getAddress()).toLowerCase().trim() !==
       this.contractOwner.toLowerCase().trim()
@@ -207,7 +202,6 @@ export class ContractsService {
 
       return [startLotteryTxn.hash]
     } catch (error) {
-      console.log(error)
       window.alert(error)
       return false
     }
@@ -224,7 +218,6 @@ export class ContractsService {
 
       return baseWinningClaimFee
     } catch (error) {
-      console.log(error)
       window.alert(error)
       return undefined
     }
@@ -242,7 +235,6 @@ export class ContractsService {
 
       return currentAccountTokenBalance
     } catch (error) {
-      console.log('Can not get token balance: ', error)
       window.alert('Can not get token balance: ' + `${error}`)
       return ''
     }
@@ -267,9 +259,7 @@ export class ContractsService {
         })
 
       await tokenPurchaseTxn.wait().then(async (response: any) => {
-        console.log({ response })
         const { confirmations, logs } = response
-        console.log({ confirmations, logs })
 
         if (
           confirmations > 0 &&
@@ -302,7 +292,6 @@ export class ContractsService {
       })
       return isSuccess
     } catch (error) {
-      console.log(error)
       window.alert(error)
       return isSuccess
     }
@@ -331,7 +320,6 @@ export class ContractsService {
       if (approveAllowanceToLotteryContractTxnReceipt) return true
       return false
     } catch (error) {
-      console.log(error)
       window.alert(error)
       return false
     }
@@ -353,8 +341,6 @@ export class ContractsService {
 
       const trackBurnTxnReceipt = await trackBurnTxn.wait()
 
-      console.log({ trackBurnTxnReceipt })
-
       if (!(trackBurnTxnReceipt.confirmations > 0)) {
         window.alert('Registering burn with lottery contract failed')
         return false
@@ -365,8 +351,6 @@ export class ContractsService {
         ['burn'](amountToBurn)
 
       const tokenBurnTxnReceipt = await tokenBurnTxn.wait()
-
-      console.log({ tokenBurnTxnReceipt })
 
       if (!(tokenBurnTxnReceipt.confirmations > 0)) {
         window.alert('Token burn with token contract failed')
@@ -388,7 +372,6 @@ export class ContractsService {
 
       return true
     } catch (error) {
-      console.log(error)
       window.alert(error)
       return false
     }
@@ -404,7 +387,6 @@ export class ContractsService {
 
       return bigNumberToETHString(accumulatedFees)
     } catch (error) {
-      console.log(error)
       window.alert(error)
       return ''
     }
@@ -429,7 +411,6 @@ export class ContractsService {
       }
       return false
     } catch (error) {
-      console.log(error)
       window.alert(error)
       return false
     }
@@ -442,7 +423,6 @@ export class ContractsService {
       const isLotteryOpenForBetting = await lotteryContract['lotteryOpen']()
       return !isLotteryOpenForBetting
     } catch (error) {
-      console.log(error)
       window.alert(error)
       return false
     }
@@ -465,7 +445,6 @@ export class ContractsService {
       if (lotteryRollTxnReceipt) return true
       return false
     } catch (error) {
-      console.log(error)
       window.alert(error)
       return false
     }
@@ -478,7 +457,6 @@ export class ContractsService {
       const latestLotteryWinner = await lotteryContract['latestLotteryWinner']()
       return latestLotteryWinner
     } catch (error) {
-      console.log(error)
       window.alert(error)
       return false
     }
@@ -495,7 +473,6 @@ export class ContractsService {
 
       return [unclaimedWinnings, bigNumberToETHString(unclaimedWinnings)]
     } catch (error) {
-      console.log(error)
       window.alert(error)
       return []
     }
@@ -515,7 +492,6 @@ export class ContractsService {
       if (placeBetTxnReceipt) return true
       return false
     } catch (error) {
-      console.log(error)
       window.alert(error)
       return false
     }
@@ -531,7 +507,6 @@ export class ContractsService {
 
       return currentlySetLotteryContractClosingEpoch
     } catch (error) {
-      console.log(error)
       window.alert(error)
       return 0
     }
@@ -555,7 +530,6 @@ export class ContractsService {
 
       return false
     } catch (error) {
-      console.log(error)
       window.alert(error)
       return false
     }
@@ -566,7 +540,7 @@ export class ContractsService {
     unclaimedLotteryWinningBN: ethers.BigNumber,
   ) {
     try {
-      const [winningAfterFeeDeduction, calculatedFee] = calculateWinningFee(
+      const [winningAfterFeeDeduction] = calculateWinningFee(
         unclaimedLotteryWinningBN,
       )
 
@@ -576,16 +550,8 @@ export class ContractsService {
         'winningWithdrawBaseFee'
       ]()
 
-      console.log(
-        'format winning Ether: ',
-        ethers.utils.formatEther(baseWinningClaimFee),
-      )
-
-      console.log({ baseWinningClaimFee, winningAfterFeeDeduction })
-
       return winningAfterFeeDeduction.gt(baseWinningClaimFee)
     } catch (error) {
-      console.log(error)
       window.alert(error)
       return false
     }
@@ -610,18 +576,8 @@ export class ContractsService {
       const baseWinningClaimFee = await lotteryContract[
         'winningWithdrawBaseFee'
       ]()
-      console.log(
-        '\nwinning after fee deduction: ',
-        ethers.utils.formatEther(winningAmountAfterFeeDeduction),
-        '\ncalculated fee deduction: ',
-        ethers.utils.formatEther(calculatedWinningFee),
-        '\nbase fee deduction: ',
-        ethers.utils.formatEther(baseWinningClaimFee),
-      )
 
       if (calculatedWinningFee.gte(baseWinningClaimFee)) {
-        console.log('calculated fee greater')
-
         const withdrawWinningTxn = await lotteryContract
           .connect(currentWallet)
           ['withdrawWinning'](
@@ -629,15 +585,11 @@ export class ContractsService {
             calculatedWinningFee,
           )
 
-        console.log('withdraw txn created!')
-
         await withdrawWinningTxn.wait().then((response: any) => {
           if (response.confirmations > 0) return true
           return false
         })
       } else {
-        console.log('base fee greater')
-
         const baseFeeCalculatedFeeDelta = baseWinningClaimFee.sub(
           calculatedWinningFee,
         )
@@ -646,15 +598,12 @@ export class ContractsService {
         )
 
         if (effectiveWinningAmount.lte(ethers.utils.parseEther('0.005'))) {
-          console.log('winning too less!')
           window.alert(
             'Winning amount less than fee - try claiming again if you win!',
           )
 
           return false
         }
-
-        console.log('sufficient winning to withdraw')
 
         const withdrawWinningTxn = await lotteryContract
           .connect(currentWallet)
@@ -671,7 +620,6 @@ export class ContractsService {
 
       return false
     } catch (error) {
-      console.log('claim winning contract service: ', error)
       window.alert(error)
       return false
     }

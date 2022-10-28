@@ -29,13 +29,9 @@ export default (
   winningAmount: BigNumber,
   feePercent: number = 30,
 ): BigNumber[] => {
-  console.log('calculate the winning amount!')
-
   const winningFee = calculatePercentageOfBigNumber(winningAmount, feePercent)
-  console.log({ winningFee })
 
   const winningAfterFeeDeduction = winningAmount.sub(winningFee)
-  console.log({ winningAfterFeeDeduction })
 
   return [winningAfterFeeDeduction, winningFee]
 }

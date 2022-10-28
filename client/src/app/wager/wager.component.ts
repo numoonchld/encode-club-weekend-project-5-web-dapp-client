@@ -90,7 +90,6 @@ export class WagerComponent implements OnInit {
     const { lotteryTokenAmount } = this.buyTokensForm.value
 
     if (Number.isNaN(parseFloat(lotteryTokenAmount!))) {
-      console.log('Enter valid token amount!')
       window.alert('Enter valid token amount!')
       this.isAttemptingToPurchaseTokens = false
     }

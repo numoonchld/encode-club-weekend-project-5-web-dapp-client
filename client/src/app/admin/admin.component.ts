@@ -60,17 +60,6 @@ export class AdminComponent implements OnInit {
     this.currentWalletBalance = await this.contractsService.getWalletBalance(
       ethereum,
     )
-    // console.log(this.isOwnerLoggedIn)
-
-    // TODO: Debug this update isOwnerLoggedIn state without page refresh
-    /* 
-    ethereum.on('accountsChanged', async () => {
-      console.log('account change detected!')
-      await this.contractsService.checkWalletConnection(ethereum)
-      this.isOwnerLoggedIn = this.contractsService.determineIsCurrentAccountLotteryContractOwner()
-      console.log('account change state', this.isOwnerLoggedIn)
-    })
-    */
   }
 
   async attemptLotteryStart() {
@@ -87,7 +76,6 @@ export class AdminComponent implements OnInit {
       this.isAttemptingLotteryStart = false
       return
     }
-    console.log({ durationInSeconds, baseWinningWithdrawFee })
 
     const computedClosingTime = currentEpoch() + parseInt(durationInSeconds!)
 
