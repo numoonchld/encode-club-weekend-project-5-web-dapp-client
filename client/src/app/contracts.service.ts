@@ -240,7 +240,7 @@ export class ContractsService {
         'balanceOf'
       ](await currentWallet.getAddress())
 
-      return bigNumberToETHString(currentAccountTokenBalance)
+      return currentAccountTokenBalance
     } catch (error) {
       console.log('Can not get token balance: ', error)
       window.alert('Can not get token balance: ' + `${error}`)
@@ -347,13 +347,44 @@ export class ContractsService {
       const lotteryContract = await this.getLotteryContract()
 
       const amountToBurn = currentTokenBalance
-      await lotteryContract
+      const trackBurnTxn = await lotteryContract
         .connect(currentWallet)
         ['trackLatestBurn'](amountToBurn)
 
-      await lotteryTokenContract.connect(currentWallet)['burn'](amountToBurn)
+      const trackBurnTxnReceipt = await trackBurnTxn.wait()
 
-      await lotteryContract.connect(currentWallet)['withdrawLastBurnToEther']()
+      console.log({ trackBurnTxnReceipt })
+
+      if (!(trackBurnTxnReceipt.confirmations > 0)) {
+        window.alert('Registering burn with lottery contract failed')
+        return false
+      }
+
+      const tokenBurnTxn = await lotteryTokenContract
+        .connect(currentWallet)
+        ['burn'](amountToBurn)
+
+      const tokenBurnTxnReceipt = await tokenBurnTxn.wait()
+
+      console.log({ tokenBurnTxnReceipt })
+
+      if (!(tokenBurnTxnReceipt.confirmations > 0)) {
+        window.alert('Token burn with token contract failed')
+        return false
+      }
+
+      const withdrawBurnTxn = await lotteryContract
+        .connect(currentWallet)
+        ['withdrawLastBurnToEther']()
+
+      const withdrawBurnTxnReceipt = await withdrawBurnTxn.wait()
+
+      if (!(withdrawBurnTxnReceipt.confirmations > 0)) {
+        window.alert(
+          'Withdraw burn with token contract failed - ETH has to be manually withdrawn!',
+        )
+        return false
+      }
 
       return true
     } catch (error) {

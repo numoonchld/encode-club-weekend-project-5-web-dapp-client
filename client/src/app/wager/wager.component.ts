@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core'
 import { ContractsService } from '../contracts.service'
 import { FormBuilder, Validators } from '@angular/forms'
 import { BigNumber, ethers } from 'ethers'
-import bigNumberToETHString from 'src/helpers/bigNumberToETHString'
+import bigNumberToETHString from '../../helpers/bigNumberToETHString'
 
 declare var window: any
 
@@ -57,8 +57,8 @@ export class WagerComponent implements OnInit {
     this.isBettingWindowOpen = await this.contractsService.isBettingWindowOpen()
 
     const { ethereum } = window
-    this.currentLotteryTokenBalanceForCurrentWallet = await this.contractsService.getLotteryTokenBalance(
-      ethereum,
+    this.currentLotteryTokenBalanceForCurrentWallet = bigNumberToETHString(
+      await this.contractsService.getLotteryTokenBalance(ethereum),
     )
     this.currentWalletBalance = await this.contractsService.getWalletBalance(
       ethereum,
