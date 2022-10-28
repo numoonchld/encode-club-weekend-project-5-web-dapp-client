@@ -213,6 +213,23 @@ export class ContractsService {
     }
   }
 
+  // get base winning fee
+  async getBaseWinningFee() {
+    try {
+      const lotteryContract = await this.getLotteryContract()
+
+      const baseWinningClaimFee = await lotteryContract[
+        'winningWithdrawBaseFee'
+      ]()
+
+      return baseWinningClaimFee
+    } catch (error) {
+      console.log(error)
+      window.alert(error)
+      return undefined
+    }
+  }
+
   // get lottery token balance
   async getLotteryTokenBalance(ethereum: any) {
     try {
@@ -528,6 +545,11 @@ export class ContractsService {
         'winningWithdrawBaseFee'
       ]()
 
+      console.log(
+        'format winning Ether: ',
+        ethers.utils.formatEther(baseWinningClaimFee),
+      )
+
       console.log({ baseWinningClaimFee, winningAfterFeeDeduction })
 
       return winningAfterFeeDeduction.gt(baseWinningClaimFee)
@@ -539,41 +561,86 @@ export class ContractsService {
   }
 
   // claim winning
-  async claimWinning(
-    ethereum: any,
-    unclaimedLotteryWinningBN: ethers.BigNumber,
-  ) {
+  async claimWinning(ethereum: any): Promise<boolean> {
     try {
-      const [winningAfterFeeDeduction, calculatedFee] = calculateWinningFee(
-        unclaimedLotteryWinningBN,
-      )
-
       const currentWallet = await this.getMetamaskWalletSigner(ethereum)
+      const currentWalletAddress = await currentWallet.getAddress()
+
       const lotteryContract = await this.getLotteryContract()
+
+      const unclaimedWinningAmount = await lotteryContract['winningStash'](
+        currentWalletAddress,
+      )
+      const [
+        winningAmountAfterFeeDeduction,
+        calculatedWinningFee,
+      ] = calculateWinningFee(unclaimedWinningAmount)
 
       const baseWinningClaimFee = await lotteryContract[
         'winningWithdrawBaseFee'
       ]()
+      console.log(
+        '\nwinning after fee deduction: ',
+        ethers.utils.formatEther(winningAmountAfterFeeDeduction),
+        '\ncalculated fee deduction: ',
+        ethers.utils.formatEther(calculatedWinningFee),
+        '\nbase fee deduction: ',
+        ethers.utils.formatEther(baseWinningClaimFee),
+      )
 
-      console.log({ baseWinningClaimFee, winningAfterFeeDeduction })
+      if (calculatedWinningFee.gte(baseWinningClaimFee)) {
+        console.log('calculated fee greater')
 
-      if (winningAfterFeeDeduction.gt(baseWinningClaimFee)) {
-        const claimWinningTxn = await lotteryContract
+        const withdrawWinningTxn = await lotteryContract
           .connect(currentWallet)
-          ['withdrawWinning'](calculatedFee)
+          ['withdrawWinning'](
+            winningAmountAfterFeeDeduction,
+            calculatedWinningFee,
+          )
 
-        const claimWinningTxnReceipt = await this.provider.getTransactionReceipt(
-          claimWinningTxn.hash,
+        console.log('withdraw txn created!')
+
+        await withdrawWinningTxn.wait().then((response: any) => {
+          if (response.confirmations > 0) return true
+          return false
+        })
+      } else {
+        console.log('base fee greater')
+
+        const baseFeeCalculatedFeeDelta = baseWinningClaimFee.sub(
+          calculatedWinningFee,
+        )
+        const effectiveWinningAmount = winningAmountAfterFeeDeduction.sub(
+          baseFeeCalculatedFeeDelta,
         )
 
-        if (claimWinningTxnReceipt) return true
+        if (effectiveWinningAmount.lte(ethers.utils.parseEther('0.005'))) {
+          console.log('winning too less!')
+          window.alert(
+            'Winning amount less than fee - try claiming again if you win!',
+          )
+
+          return false
+        }
+
+        console.log('sufficient winning to withdraw')
+
+        const withdrawWinningTxn = await lotteryContract
+          .connect(currentWallet)
+          ['withdrawWinning'](
+            winningAmountAfterFeeDeduction,
+            calculatedWinningFee,
+          )
+
+        await withdrawWinningTxn.wait().then((response: any) => {
+          if (response.confirmations > 0) return true
+          return false
+        })
       }
-      window.alert(
-        'Winnings less that fee - collect winnings when you have won more!',
-      )
+
       return false
     } catch (error) {
-      console.log(error)
+      console.log('claim winning contract service: ', error)
       window.alert(error)
       return false
     }

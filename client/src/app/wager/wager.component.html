@@ -38,9 +38,16 @@
           unclaimedLotteryWinning !== '' && unclaimedLotteryWinning !== '0.0'
         "
       >
-        <span
-          >You have unclaimed winnings of {{ unclaimedLotteryWinning }}!</span
-        >
+        <span class="d-flex flex-column">
+          <span class="fs-3">
+            You have unclaimed winnings of {{ unclaimedLotteryWinning }} Tokens!
+          </span>
+          <span class="fs-6">
+            (a winning fee of 30% or {{ baseWinningFee }} Tokens, which ever is
+            higher)
+          </span>
+        </span>
+
         <button
           class="btn btn-success"
           (click)="attemptWinningClaim()"

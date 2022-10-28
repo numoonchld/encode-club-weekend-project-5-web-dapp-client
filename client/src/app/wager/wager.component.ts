@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core'
 import { ContractsService } from '../contracts.service'
 import { FormBuilder, Validators } from '@angular/forms'
-import { ethers } from 'ethers'
+import { BigNumber, ethers } from 'ethers'
 import bigNumberToETHString from 'src/helpers/bigNumberToETHString'
 
 declare var window: any
@@ -24,6 +24,7 @@ export class WagerComponent implements OnInit {
   isClaimingWinning: Boolean
   isForcingAllowance: Boolean
   isWinningClaimable: boolean
+  baseWinningFee: string
 
   buyTokensForm = this.fb.group({
     lotteryTokenAmount: ['', [Validators.required]],
@@ -49,6 +50,7 @@ export class WagerComponent implements OnInit {
     this.unclaimedLotteryWinningBN = ethers.BigNumber.from(0)
     this.isForcingAllowance = false
     this.isWinningClaimable = false
+    this.baseWinningFee = ''
   }
 
   async ngOnInit(): Promise<void> {
@@ -67,6 +69,12 @@ export class WagerComponent implements OnInit {
     ] = await this.contractsService.getUnclaimedWinnings(ethereum)
 
     this.isLoadingBalance = false
+
+    this.shouldWinningClaimBeEnabled()
+
+    this.baseWinningFee = ethers.utils.formatEther(
+      await this.contractsService.getBaseWinningFee(),
+    )
   }
 
   async shouldWinningClaimBeEnabled() {
@@ -136,29 +144,13 @@ export class WagerComponent implements OnInit {
 
     const isWinningClaimSuccess = await this.contractsService.claimWinning(
       ethereum,
-      this.unclaimedLotteryWinningBN,
     )
 
     if (isWinningClaimSuccess) {
       window.alert('Claimed winning successfully!')
-      await this.ngOnInit()
+      location.reload()
     }
 
     this.isClaimingWinning = false
   }
-
-  /*
-  async forceAllowance() {
-    const { ethereum } = window
-    const isForceAllowanceSuccess = await this.contractsService.forceAllowance(
-      ethereum,
-    )
-
-    if (isForceAllowanceSuccess) {
-      window.alert('Force allowance txn successful - try to bet again!')
-      await this.ngOnInit()
-    }
-    this.isForcingAllowance = false
-  }
-  */
 }
