@@ -25,6 +25,8 @@ export class WagerComponent implements OnInit {
   isForcingAllowance: Boolean
   isWinningClaimable: boolean
   baseWinningFee: string
+  betAmount: string
+  betFee: string
 
   buyTokensForm = this.fb.group({
     lotteryTokenAmount: ['', [Validators.required]],
@@ -51,6 +53,8 @@ export class WagerComponent implements OnInit {
     this.isForcingAllowance = false
     this.isWinningClaimable = false
     this.baseWinningFee = ''
+    this.betAmount = '0.5'
+    this.betFee = '0.01'
   }
 
   async ngOnInit(): Promise<void> {
@@ -147,7 +151,7 @@ export class WagerComponent implements OnInit {
 
     if (isWinningClaimSuccess) {
       window.alert('Claimed winning successfully!')
-      location.reload()
+      await this.ngOnInit()
     }
 
     this.isClaimingWinning = false

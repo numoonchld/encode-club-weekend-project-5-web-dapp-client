@@ -6,11 +6,21 @@
         [ngClass]="isBettingWindowOpen ? 'alert-success' : 'alert-danger'"
         role="alert"
       >
-        {{
-          isBettingWindowOpen
-            ? "Betting is open!"
-            : "Lottery is currently not open for betting!"
-        }}
+        <div class="d-flex flex-column gap-5¸">
+          <div>
+            {{
+              isBettingWindowOpen
+                ? "Betting is open!"
+                : "Lottery is currently not open for betting!"
+            }}
+          </div>
+          <br *ngIf="isBettingWindowOpen === true" />
+          <div *ngIf="isBettingWindowOpen === true">
+            Bet Amount: {{ betAmount }} Tokens
+            <br />
+            Bet Amount: {{ betFee }} Tokens
+          </div>
+        </div>
 
         <button
           type="button"
@@ -43,8 +53,8 @@
             You have unclaimed winnings of {{ unclaimedLotteryWinning }} Tokens!
           </span>
           <span class="fs-6">
-            (a winning fee of 30% or {{ baseWinningFee }} Tokens, which ever is
-            higher)
+            (a winning fee of 30% or {{ baseWinningFee }} Tokens applies, which
+            ever is higher)
           </span>
         </span>
 
