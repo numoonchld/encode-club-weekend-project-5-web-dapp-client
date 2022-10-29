@@ -40,8 +40,8 @@ export class ContractsService {
     this.lotteryContractJSON = LotteryContractJSON
     this.lotteryTokenContractJSON = LotteryTokenContractJSON
 
-    // this.provider = ethers.getDefaultProvider('goerli')
-    this.provider = ethers.getDefaultProvider('http://localhost:8545')
+    this.provider = ethers.getDefaultProvider('goerli')
+    // this.provider = ethers.getDefaultProvider('http://localhost:8545')
   }
 
   // get metamask account/signer/address
