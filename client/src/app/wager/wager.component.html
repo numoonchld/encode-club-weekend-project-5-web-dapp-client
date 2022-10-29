@@ -6,7 +6,7 @@
         [ngClass]="isBettingWindowOpen ? 'alert-success' : 'alert-danger'"
         role="alert"
       >
-        <div class="d-flex flex-column gap-5¸">
+        <div class="d-flex flex-column">
           <div>
             {{
               isBettingWindowOpen
@@ -27,6 +27,7 @@
           *ngIf="isBettingWindowOpen === true"
           class="btn btn-primary"
           (click)="attemptPlacingBets()"
+          [disabled]="isPlacingBet === true"
         >
           <!-- <i class="fas fa-dice fa-2x"></i> -->
           <!-- <i class="fas fa-dice"></i> -->

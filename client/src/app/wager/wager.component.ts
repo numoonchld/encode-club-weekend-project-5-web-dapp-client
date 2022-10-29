@@ -133,8 +133,8 @@ export class WagerComponent implements OnInit {
 
     if (isPlacingBetSuccess) {
       window.alert('Placed bet successfully!')
-      this.ngOnInit()
     } else window.alert('Placing bet failed!')
+    await this.ngOnInit()
     this.isPlacingBet = false
   }
 

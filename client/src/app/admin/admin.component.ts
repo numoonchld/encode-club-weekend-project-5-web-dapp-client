@@ -102,7 +102,7 @@ export class AdminComponent implements OnInit {
     )
 
     if (isFeeCreditSuccess) {
-      window.alert('Accumulates fees credit to owner!')
+      window.alert('Accumulated fees credit to owner!')
       await this.ngOnInit()
     }
     this.isAttemptingFeeCredit = false
