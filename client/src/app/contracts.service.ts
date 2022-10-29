@@ -568,6 +568,7 @@ export class ContractsService {
       const unclaimedWinningAmount = await lotteryContract['winningStash'](
         currentWalletAddress,
       )
+
       const [
         winningAmountAfterFeeDeduction,
         calculatedWinningFee,
@@ -585,10 +586,10 @@ export class ContractsService {
             calculatedWinningFee,
           )
 
-        await withdrawWinningTxn.wait().then((response: any) => {
-          if (response.confirmations > 0) return true
-          return false
-        })
+        const withdrawWinningTxnReceipt = await withdrawWinningTxn.wait()
+
+        if (withdrawWinningTxnReceipt.confirmations > 0) return true
+        return false
       } else {
         const baseFeeCalculatedFeeDelta = baseWinningClaimFee.sub(
           calculatedWinningFee,
@@ -612,10 +613,11 @@ export class ContractsService {
             calculatedWinningFee,
           )
 
-        await withdrawWinningTxn.wait().then((response: any) => {
-          if (response.confirmations > 0) return true
-          return false
-        })
+        const withdrawWinningTxnReceipt = await withdrawWinningTxn.wait()
+
+        if (withdrawWinningTxnReceipt.confirmations > 0) return true
+
+        return false
       }
 
       return false

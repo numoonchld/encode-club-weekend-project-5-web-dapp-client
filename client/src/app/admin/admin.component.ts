@@ -54,8 +54,8 @@ export class AdminComponent implements OnInit {
     this.accumulatedFees = await this.contractsService.getAccumulatedFees()
     this.isLotteryStartAvailable = await this.contractsService.isLotteryStartAvailable()
 
-    this.ownerLotteryTokenBalance = await this.contractsService.getLotteryTokenBalance(
-      ethereum,
+    this.ownerLotteryTokenBalance = ethers.utils.formatEther(
+      await this.contractsService.getLotteryTokenBalance(ethereum),
     )
     this.currentWalletBalance = await this.contractsService.getWalletBalance(
       ethereum,

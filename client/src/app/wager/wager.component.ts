@@ -105,13 +105,9 @@ export class WagerComponent implements OnInit {
 
     if (isPurchaseSuccess) {
       window.alert('Token purchase successful!')
-
-      this.currentWalletBalance = await this.contractsService.getWalletBalance(
-        ethereum,
-      )
+      await this.ngOnInit()
     } else window.alert('Token purchase unsuccessful - please try later!')
     this.isAttemptingToPurchaseTokens = false
-    await this.ngOnInit()
   }
 
   async attemptTokenRedemption() {
@@ -121,10 +117,11 @@ export class WagerComponent implements OnInit {
     const ifRedemptionSuccess = await this.contractsService.redeemTokensToETH(
       ethereum,
     )
+
     if (ifRedemptionSuccess) {
       window.alert('Redemption was successful!')
       await this.ngOnInit()
-    }
+    } else window.alert('Token redemption failed!')
     this.isAttemptingTokenRedemption = false
   }
 
@@ -136,8 +133,8 @@ export class WagerComponent implements OnInit {
 
     if (isPlacingBetSuccess) {
       window.alert('Placed bet successfully!')
-      await this.ngOnInit()
-    }
+      this.ngOnInit()
+    } else window.alert('Placing bet failed!')
     this.isPlacingBet = false
   }
 
@@ -151,9 +148,10 @@ export class WagerComponent implements OnInit {
 
     if (isWinningClaimSuccess) {
       window.alert('Claimed winning successfully!')
-      await this.ngOnInit()
-    }
-
+      this.isClaimingWinning = false
+      this.unclaimedLotteryWinning = ''
+      this.ngOnInit()
+    } else window.alert('Claiming winning failed!')
     this.isClaimingWinning = false
   }
 }
